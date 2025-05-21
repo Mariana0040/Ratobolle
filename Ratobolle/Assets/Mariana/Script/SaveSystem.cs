@@ -6,8 +6,8 @@ using System;
 public static class SaveSystem
 {
     private static readonly string SAVE_FOLDER = Application.persistentDataPath + "/Saves/";
-    private static readonly string SETTINGS_FILE = "settings.save";
-    private static readonly string GAME_FILE = "game.save";
+    //private static readonly string SETTINGS_FILE = "settings.save";
+    //private static readonly string GAME_FILE = "game.save";
 
     public static void Initialize()
     {

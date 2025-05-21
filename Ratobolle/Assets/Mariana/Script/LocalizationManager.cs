@@ -35,12 +35,7 @@ public class LocalizationManager : MonoBehaviour
 
     public void ChangeLanguage(int languageIndex)
     {
-        currentLanguage = (Language)languageIndex;
-        // Atualizar todos os textos da cena
-        foreach (LocalizedText text in FindObjectsOfType<LocalizedText>())
-        {
-            text.UpdateText();
-        }
+
     }
 }
 
