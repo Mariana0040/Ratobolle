@@ -63,43 +63,43 @@ public class MainMenuManager : MonoBehaviour
     {
         //if (PlayerPrefs.HasKey("SavedGame"))
         //{
-           // currentMode = ConfirmationMode.NewGame;
-            //UpdateConfirmationUI(
-               // "Deseja salvar seu progresso?",
-                //"Confirmar",
-                //"Cancelar"
-           //);
-            //confirmationPanel.SetActive(true);
+        // currentMode = ConfirmationMode.NewGame;
+        //UpdateConfirmationUI(
+        // "Deseja salvar seu progresso?",
+        //"Confirmar",
+        //"Cancelar"
+        //);
+        //confirmationPanel.SetActive(true);
         //}
         //else
         //{
-         //  StartNewGame();
-      // }
-    {
-        Debug.Log("Botão Jogar pressionado");
+        //  StartNewGame();
+        // }
+        {
+            Debug.Log("Botão Jogar pressionado");
 
-        if (PlayerPrefs.HasKey("SavedGame"))
-        {
-            Debug.Log("Progresso encontrado, mostrando confirmação.");
-            currentMode = ConfirmationMode.NewGame;
-            UpdateConfirmationUI(
-                "Deseja salvar seu progresso?",
-                "Confirmar",
-                "Cancelar"
-            );
-            confirmationPanel.SetActive(true);
-       }
-        else
-        {
-            Debug.Log("Nenhum progresso salvo. Iniciando novo jogo.");
-            StartNewGame();
+            if (PlayerPrefs.HasKey("SavedGame"))
+            {
+                Debug.Log("Progresso encontrado, mostrando confirmação.");
+                currentMode = ConfirmationMode.NewGame;
+                UpdateConfirmationUI(
+                    "Deseja salvar seu progresso?",
+                    "Confirmar",
+                    "Cancelar"
+                );
+                confirmationPanel.SetActive(true);
+            }
+            else
+            {
+                Debug.Log("Nenhum progresso salvo. Iniciando novo jogo.");
+                StartNewGame();
+            }
         }
+
     }
 
-}
-
-// Atualiza textos do painel de confirmação
-private void UpdateConfirmationUI(string message, string confirmLabel, string cancelLabel)
+    // Atualiza textos do painel de confirmação
+    private void UpdateConfirmationUI(string message, string confirmLabel, string cancelLabel)
     {
         confirmationText.text = message;
         confirmButton.GetComponentInChildren<TextMeshProUGUI>().text = confirmLabel;
@@ -165,7 +165,10 @@ private void UpdateConfirmationUI(string message, string confirmLabel, string ca
         PlayerPrefs.DeleteAll();
         SceneManager.LoadScene("Game");
     }
-
+    public void StartTutorial()
+    {
+        SceneManager.LoadScene(1);
+    }
     public void ContinueGame()
     {
         SceneManager.LoadScene("Game");
@@ -189,3 +192,4 @@ private void UpdateConfirmationUI(string message, string confirmLabel, string ca
 #endif
     }
 }
+

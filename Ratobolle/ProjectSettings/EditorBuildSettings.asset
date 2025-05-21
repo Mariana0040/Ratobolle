@@ -8,6 +8,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Mariana/Scenes/Menu.unity
     guid: 4d0489ae0b87fa046adeddb9f91fe7dc
+  - enabled: 1
+    path: Assets/Carol/CenaM&C.unity
+    guid: ed92a9bcd2c82b34390907803aa0e56c
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
