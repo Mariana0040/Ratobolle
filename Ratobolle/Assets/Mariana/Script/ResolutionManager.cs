@@ -37,7 +37,7 @@ public class ResolutionManager : MonoBehaviour
         resolutionDropdown.RefreshShownValue();
     }
 
-    void ConfigureFullscreenToggle()
+    public void ConfigureFullscreenToggle()
     {
         fullscreenToggle.isOn = Screen.fullScreen; // Sincroniza com o estado atual
     }

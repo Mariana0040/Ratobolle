@@ -1,7 +1,6 @@
-// MovingPlatform.cs
 using UnityEngine;
 
-public class MovingPlatform : MonoBehaviour
+public class MovingPlatform_ManualFollow : MonoBehaviour
 {
     [Header("Pontos de Movimento")]
     [SerializeField] private Transform pointA;
@@ -18,6 +17,7 @@ public class MovingPlatform : MonoBehaviour
     private bool isWaiting = false;
     private float waitTimer = 0f;
     private Rigidbody rbPlatform;
+    private Vector3 lastPosition; // Para calcular o delta de movimento
 
     void Awake()
     {
@@ -32,28 +32,40 @@ public class MovingPlatform : MonoBehaviour
         if (!enabled) return;
         if (pointA == null || pointB == null) { Debug.LogError($"Pontos não definidos para '{gameObject.name}'!", this); enabled = false; return; }
         if (pointA == transform || pointB == transform) { Debug.LogError($"Pontos não podem ser a plataforma '{gameObject.name}'!", this); enabled = false; return; }
+
         rbPlatform.position = pointA.position;
+        lastPosition = rbPlatform.position; // Inicializa lastPosition
         currentTarget = pointB;
         isMovingToB = true;
+        if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' iniciando. Alvo: {currentTarget.name}.");
     }
 
     void FixedUpdate()
     {
         if (!enabled || currentTarget == null) return;
+
+        // Armazena a posição ANTES de mover
+        lastPosition = rbPlatform.position;
+
         if (isWaiting)
         {
             waitTimer -= Time.fixedDeltaTime;
             if (waitTimer <= 0f) { isWaiting = false; SwitchTarget(); }
+            // Mesmo esperando, lastPosition deve ser a posição atual para o jogador não se mover
+            // No entanto, como a plataforma não se move, o delta será zero.
             return;
         }
+
         Vector3 newPosition = Vector3.MoveTowards(rbPlatform.position, currentTarget.position, speed * Time.fixedDeltaTime);
         rbPlatform.MovePosition(newPosition);
+
         if (Vector3.Distance(newPosition, currentTarget.position) < arrivalThreshold)
         {
-            rbPlatform.MovePosition(currentTarget.position);
+            rbPlatform.MovePosition(currentTarget.position); // Garante posição exata
+            lastPosition = rbPlatform.position; // Atualiza lastPosition para o ponto final
             isWaiting = true;
             waitTimer = waitTimeAtPoints;
-            if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' chegou em {currentTarget.name}.");
+            if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' chegou em {currentTarget.name}. Esperando.");
         }
     }
 
@@ -64,31 +76,15 @@ public class MovingPlatform : MonoBehaviour
         if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' trocou alvo para: {currentTarget.name}.");
     }
 
-    // Quando o jogador ENCOSTA na plataforma (colisão física)
-    void OnCollisionEnter(Collision collision)
+    // Função para o jogador pegar o delta de movimento da plataforma
+    public Vector3 GetMovementDelta()
     {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            ContactPoint contact = collision.contacts[0];
-            // Verifica se o jogador colidiu com a parte de CIMA da plataforma
-            if (Vector3.Dot(contact.normal, transform.up) > 0.5f) // Ajuste este valor se necessário (0.1 a 0.9)
-            {
-                FakeRollCapsuleController playerController = collision.gameObject.GetComponent<FakeRollCapsuleController>();
-                if (playerController != null)
-                {
-                    // Avisa o jogador que ele deve grudar e parar de se mover por conta própria
-                    playerController.AttachToPlatform(transform); // Passa o transform DESTA plataforma
-                    if (logStateChanges) Debug.Log($"Jogador '{collision.gameObject.name}' PISOU EM CIMA. Avisando para grudar.");
-                }
-            }
-        }
+        if (isWaiting) return Vector3.zero; // Se está parada, não há delta
+        return rbPlatform.position - lastPosition;
     }
 
-    // Por enquanto, não vamos desgrudar automaticamente no OnCollisionExit para o teste de "estátua"
-    // void OnCollisionExit(Collision collision) { /* ... */ }
-
 #if UNITY_EDITOR
-void OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
         float gizmoSphereRadius = 0.25f;
