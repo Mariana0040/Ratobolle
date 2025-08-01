@@ -10,15 +10,10 @@ public class FakeRollCapsuleController : MonoBehaviour
     [SerializeField] private float turnSpeed = 180f;
 
     [Header("Pulo/Impulso Orientado")]
-    [Tooltip("Força do impulso na direção 'para cima' LOCAL do jogador.")]
-    [SerializeField] private float upwardImpulseForce = 10f; // Aumentei um pouco o valor padrão
-    [Tooltip("Força do impulso na direção 'para frente' LOCAL do jogador, adicionada ao pulo se W estiver pressionado.")]
-    [SerializeField] private float forwardImpulseBoost = 5f; // Força específica para o impulso frontal no pulo
-    [Tooltip("Quantos impulsos/pulos o jogador pode dar antes de tocar o chão.")]
+    [SerializeField] private float upwardImpulseForce = 10f;
+    [SerializeField] private float forwardImpulseBoost = 5f;
     [SerializeField] private int maxJumps = 2;
-    [Tooltip("Pequeno controle no ar: quanta da velocidade de movimento é aplicada APÓS o pulo inicial.")]
-    [Range(0f, 1f)]
-    [SerializeField] private float airControlFactor = 0.3f;
+    [Range(0f, 1f)][SerializeField] private float airControlFactor = 0.5f; // Aumentei um pouco o padrão
 
     [Header("Rolagem Visual")]
     [SerializeField] private Transform visualMeshTransform;
@@ -28,6 +23,15 @@ public class FakeRollCapsuleController : MonoBehaviour
     [Header("Verificação de Chão")]
     [SerializeField] private float groundCheckDistance = 0.15f;
     [SerializeField] private LayerMask groundLayerMask;
+    [SerializeField] private LayerMask movingPlatformSurfaceLayer;
+
+    [Header("Configurações de Reset")]
+    [SerializeField] private Transform respawnPoint;
+    [SerializeField] private LayerMask resetZoneLayer;
+
+    [Header("Interação com Plataforma Móvel")]
+    [Tooltip("Tag do objeto Trigger da plataforma que faz o jogador 'grudar' (StickZone).")]
+    [SerializeField] private string platformStickTag = "PlatformStickZone"; // Tag da StickZone
 
     // Componentes e Estado Interno
     private Rigidbody rb;
@@ -37,46 +41,72 @@ public class FakeRollCapsuleController : MonoBehaviour
     private float currentVisualRollSpeed = 0f;
 
     // Input
-    private float inputForward = 0f; // Valor de W/S
-    private float inputTurn = 0f;    // Valor de A/D
-    private bool jumpInputFlag = false; // Flag para registrar o aperto da tecla Espaço
+    private float inputForward = 0f;
+    private float inputTurn = 0f;
+    private bool jumpInputFlag = false;
+
+    // Estado da Plataforma
+    private Transform currentAttachedPlatform = null;
+    private bool isInsideStickZone = false; // O jogador está DENTRO do trigger da StickZone?
+
+    // --- NOVO PARA SEGUIR PLATAFORMA MANUALMENTE ---
+    private MovingPlatform_ManualFollow currentStandingPlatform = null;
+    private Vector3 platformMovementDelta = Vector3.zero;
+
 
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
         capsuleCollider = GetComponent<CapsuleCollider>();
-        if (visualMeshTransform == null) { Debug.LogError("Visual Mesh Transform não definido!"); enabled = false; return; }
-        if (groundLayerMask == 0) { Debug.LogWarning("Ground Layer Mask não definida."); }
+        if (visualMeshTransform == null) { Debug.LogError("Visual Mesh Transform não definido!", this); enabled = false; return; }
+        if (groundLayerMask.value == 0) { Debug.LogWarning("Ground Layer Mask não definida."); }
+        if (movingPlatformSurfaceLayer.value == 0) { Debug.LogWarning("Moving Platform Surface Layer não definida."); }
         jumpsRemaining = maxJumps;
     }
 
     void Update()
     {
+        // Inputs são sempre lidos
         inputForward = Input.GetAxis("Vertical");
         inputTurn = Input.GetAxis("Horizontal");
-
-        // Se o botão de pulo for pressionado, ativa a flag.
-        // Fazemos isso no Update para não perder o input se o FixedUpdate rodar menos frequentemente.
         if (Input.GetButtonDown("Jump"))
         {
             jumpInputFlag = true;
         }
 
-        CheckIfGrounded();
+        LayerMask combinedGroundCheckLayers = groundLayerMask | movingPlatformSurfaceLayer;
+        CheckIfGrounded(combinedGroundCheckLayers);
+
         if (isGrounded)
         {
             jumpsRemaining = maxJumps;
+            // Se aterrissou e NÃO está mais na StickZone (pulou para fora)
+            if (currentAttachedPlatform != null && !isInsideStickZone)
+            {
+                Debug.Log("Aterrissou FORA da StickZone da plataforma. Desgrudando.");
+                DetachFromPlatform();
+            }
         }
+        else // Está no ar
+        {
+            // Se estava grudado, mas agora está no ar E fora da StickZone (pulou para longe ou caiu)
+            if (currentAttachedPlatform != null && !isInsideStickZone)
+            {
+                Debug.Log("No ar e FORA da StickZone. Desgrudando.");
+                DetachFromPlatform();
+            }
+        }
+
         HandleVisualRoll();
     }
 
     void FixedUpdate()
     {
+        // Movimento e pulo são sempre processados.
+        // O parentesco com a plataforma cuida de "carregar" o jogador.
         HandleRotation();
         HandleMovement(isGrounded ? 1f : airControlFactor);
-        HandleJump(); // Lida com o pulo
-
-        // Reseta a flag do pulo DEPOIS de ser processada em HandleJump
+        HandleJump();
         jumpInputFlag = false;
     }
 
@@ -88,45 +118,125 @@ public class FakeRollCapsuleController : MonoBehaviour
 
     void HandleMovement(float speedMultiplier)
     {
-        if (isGrounded || speedMultiplier > 0)
-        {
-            Vector3 moveDelta = transform.forward * inputForward * moveSpeed * speedMultiplier * Time.fixedDeltaTime;
-            rb.MovePosition(rb.position + moveDelta);
-        }
+        Vector3 moveDirection = transform.forward * inputForward;
+        Vector3 targetVelocityForMovement = moveDirection * moveSpeed * speedMultiplier;
+
+        // Mantém a velocidade Y atual (para gravidade/pulo)
+        // A velocidade da plataforma será adicionada implicitamente devido ao parentesco
+        rb.linearVelocity = new Vector3(targetVelocityForMovement.x, rb.linearVelocity.y, targetVelocityForMovement.z);
     }
 
     void HandleJump()
     {
-        // Verifica se a flag do pulo está ativa E se ainda há pulos restantes.
         if (jumpInputFlag && jumpsRemaining > 0)
         {
-            // 1. Força base do pulo na direção "para cima" LOCAL do jogador
             Vector3 upwardForce = transform.up * upwardImpulseForce;
+            Vector3 forwardBoost = (inputForward > 0.1f) ? transform.forward * forwardImpulseBoost : Vector3.zero;
 
-            // 2. Força adicional para frente se W estiver pressionado (inputForward > 0)
-            Vector3 forwardBoostForce = Vector3.zero;
-            if (inputForward > 0.1f) // Se estiver pressionando W (ou input positivo)
-            {
-                forwardBoostForce = transform.forward * forwardImpulseBoost;
-            }
-            // Se estiver pressionando S (inputForward < -0.1f), poderia adicionar um pequeno impulso para trás
-            // else if (inputForward < -0.1f) {
-            //     forwardBoostForce = transform.forward * inputForward * forwardImpulseBoost * 0.5f; // Menor impulso para trás
-            // }
-
-
-            // Zera a velocidade vertical atual para um pulo mais consistente
+            // Zera a velocidade Y para um pulo limpo, mas MANTÉM a velocidade XZ atual.
+            // Se estiver em uma plataforma, a velocidade XZ da plataforma já estará em rb.velocity.
             rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-            // Combina as forças e aplica como UM ÚNICO impulso
-            Vector3 totalImpulse = upwardForce + forwardBoostForce;
-            rb.AddForce(totalImpulse, ForceMode.Impulse);
+            rb.AddForce(upwardForce + forwardBoost, ForceMode.Impulse);
 
             jumpsRemaining--;
-            isGrounded = false; // Importante para que o próximo CheckIfGrounded não resete jumpsRemaining imediatamente
+            isGrounded = false;
+            // Debug.Log($"Pulo/Impulso! Jumps restantes: {jumpsRemaining}");
         }
-        // A flag jumpInputFlag é resetada no final do FixedUpdate
     }
+
+    void CheckIfGrounded(LayerMask layersToConsider)
+    {
+        // ... (código da checagem de chão como antes) ...
+        Vector3 capsuleBottomCenter = transform.position + capsuleCollider.center - transform.up * (capsuleCollider.height * 0.5f - capsuleCollider.radius);
+        Vector3 startPoint = capsuleBottomCenter + transform.up * (capsuleCollider.radius * 0.1f);
+        float castRadius = capsuleCollider.radius * 0.9f;
+        float castDistance = groundCheckDistance + capsuleCollider.radius * 0.1f;
+        isGrounded = Physics.SphereCast(startPoint, castRadius, -transform.up, out RaycastHit hitInfo, castDistance, layersToConsider, QueryTriggerInteraction.Ignore);
+    }
+
+    void OnTriggerEnter(Collider other)
+    {
+        // Reset Zone
+        if (resetZoneLayer.value != 0 && (resetZoneLayer.value & (1 << other.gameObject.layer)) > 0)
+        {
+            Debug.Log($"Jogador '{gameObject.name}' encostou na ResetZone: {other.gameObject.name}");
+            DetachFromPlatform(); // Garante que desgruda
+            RespawnPlayer();
+            return;
+        }
+
+        // Entrou na StickZone da Plataforma
+        if (other.CompareTag(platformStickTag))
+        {
+            Transform platform = other.transform.parent;
+            if (platform != null && platform.GetComponent<MovingPlatform>() != null)
+            {
+                Debug.Log($"Jogador ENTROU na StickZone da plataforma '{platform.name}'.");
+                AttachToPlatform(platform);
+                isInsideStickZone = true;
+            }
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+        // Saiu da StickZone da Plataforma
+        if (other.CompareTag(platformStickTag))
+        {
+            Debug.Log($"Jogador SAIU da StickZone: {other.name}");
+            isInsideStickZone = false;
+            // A lógica de desgrudar agora está no Update, baseada em isGrounded e isInsideStickZone
+        }
+    }
+
+    public void AttachToPlatform(Transform platform)
+    {
+        if (currentAttachedPlatform != platform)
+        {
+            transform.SetParent(platform, true); // O 'true' é crucial (worldPositionStays)
+            currentAttachedPlatform = platform;
+            // NÃO TORNAMOS O RIGIDBODY KINEMATIC AQUI
+            // rb.isKinematic = true; // REMOVIDO/COMENTADO
+            Debug.Log($"Jogador '{gameObject.name}' GRUDADO na plataforma '{platform.name}'.");
+        }
+    }
+
+    void DetachFromPlatform()
+    {
+        if (currentAttachedPlatform != null)
+        {
+            Debug.Log($"Jogador '{gameObject.name}' DESGRUDADO da plataforma '{currentAttachedPlatform.name}'.");
+            transform.SetParent(null);
+            // NÃO PRECISAMOS MUDAR isKinematic se ele nunca foi mudado para true
+            // rb.isKinematic = false; // REMOVIDO/COMENTADO
+            currentAttachedPlatform = null;
+        }
+        isInsideStickZone = false;
+    }
+
+    void RespawnPlayer()
+    {
+        if (respawnPoint != null)
+        {
+            Debug.Log($"Jogador '{gameObject.name}' resetado para o ponto de respawn!");
+            if (rb != null)
+            {
+                rb.position = respawnPoint.position; // Move a posição do Rigidbody
+                rb.linearVelocity = Vector3.zero;
+
+                rb.angularVelocity = Vector3.zero;   // Zera a velocidade angular
+            }
+            else
+            {
+                transform.position = respawnPoint.position;
+            }
+        }
+        else
+        {
+            Debug.LogError($"RespawnPoint não definido no jogador '{gameObject.name}'! Não é possível resetar.", this);
+        }
+    }
+
 
     void HandleVisualRoll()
     {
@@ -143,16 +253,6 @@ public class FakeRollCapsuleController : MonoBehaviour
             float rollAngleDelta = currentVisualRollSpeed * Time.deltaTime;
             visualMeshTransform.Rotate(Vector3.right, rollAngleDelta, Space.Self);
         }
-    }
-
-    void CheckIfGrounded()
-    {
-        // ... (código da checagem de chão permanece o mesmo) ...
-        Vector3 capsuleBottomCenter = transform.position + capsuleCollider.center - transform.up * (capsuleCollider.height * 0.5f - capsuleCollider.radius);
-        Vector3 startPoint = capsuleBottomCenter + transform.up * (capsuleCollider.radius * 0.1f);
-        float castRadius = capsuleCollider.radius * 0.9f;
-        float castDistance = groundCheckDistance + capsuleCollider.radius * 0.1f;
-        isGrounded = Physics.SphereCast(startPoint, castRadius, -transform.up, out RaycastHit hitInfo, castDistance, groundLayerMask, QueryTriggerInteraction.Ignore);
     }
 
 #if UNITY_EDITOR

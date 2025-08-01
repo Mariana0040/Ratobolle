@@ -163,7 +163,7 @@ public class MainMenuManager : MonoBehaviour
     public void StartNewGame()
     {
         PlayerPrefs.DeleteAll();
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene(1);
     }
     public void StartTutorial()
     {
@@ -171,7 +171,7 @@ public class MainMenuManager : MonoBehaviour
     }
     public void ContinueGame()
     {
-        SceneManager.LoadScene("Game");
+        SceneManager.LoadScene(1);
     }
 
     public void OpenSettings()

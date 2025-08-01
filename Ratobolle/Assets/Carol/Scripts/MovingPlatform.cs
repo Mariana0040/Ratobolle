@@ -1,161 +1,107 @@
+// MovingPlatform.cs
 using UnityEngine;
 
 public class MovingPlatform : MonoBehaviour
 {
-    [Tooltip("Ponto A para onde a plataforma se move.")]
+    [Header("Pontos de Movimento")]
     [SerializeField] private Transform pointA;
-    [Tooltip("Ponto B para onde a plataforma se move.")]
     [SerializeField] private Transform pointB;
-    [Tooltip("Velocidade da plataforma.")]
+    [Header("Configurações de Movimento")]
     [SerializeField] private float speed = 2.0f;
-    [Tooltip("Tempo de espera em cada ponto (em segundos).")]
-    [SerializeField] private float waitTime = 1.0f;
-
+    [SerializeField] private float waitTimeAtPoints = 1.0f;
+    [SerializeField] private float arrivalThreshold = 0.05f;
     [Header("Debug")]
-    [SerializeField] private bool logStateChanges = false; // Para ajudar a debugar
+    [SerializeField] private bool logStateChanges = true;
 
     private Transform currentTarget;
-    private float waitTimer;
-    private bool isMovingToB = true; // True se estiver indo para B, False se estiver indo para A
+    private bool isMovingToB = true;
     private bool isWaiting = false;
+    private float waitTimer = 0f;
+    private Rigidbody rbPlatform;
+
+    void Awake()
+    {
+        rbPlatform = GetComponent<Rigidbody>();
+        if (rbPlatform == null) { Debug.LogError($"'{gameObject.name}' PRECISA de Rigidbody. IsKinematic=true.", this); enabled = false; return; }
+        rbPlatform.isKinematic = true;
+        rbPlatform.useGravity = false;
+    }
 
     void Start()
     {
-        if (pointA == null || pointB == null)
-        {
-            Debug.LogError($"Pontos A ({pointA}) e/ou B ({pointB}) não definidos para a plataforma móvel '{gameObject.name}'! Desativando.", this);
-            enabled = false;
-            return;
-        }
-
-        // Garante que os pontos não são o mesmo objeto da plataforma
-        if (pointA == transform || pointB == transform)
-        {
-            Debug.LogError($"Pontos A e/ou B não podem ser a própria plataforma '{gameObject.name}'! Use GameObjects vazios para os pontos. Desativando.", this);
-            enabled = false;
-            return;
-        }
-
-
-        // Define a posição inicial da plataforma para o Ponto A
-        transform.position = pointA.position;
-        currentTarget = pointB; // Começa movendo para o Ponto B
+        if (!enabled) return;
+        if (pointA == null || pointB == null) { Debug.LogError($"Pontos não definidos para '{gameObject.name}'!", this); enabled = false; return; }
+        if (pointA == transform || pointB == transform) { Debug.LogError($"Pontos não podem ser a plataforma '{gameObject.name}'!", this); enabled = false; return; }
+        rbPlatform.position = pointA.position;
+        currentTarget = pointB;
         isMovingToB = true;
-        waitTimer = 0; // Não espera no início, a menos que queira
-        isWaiting = false;
-
-        if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' iniciando em A, movendo para B.");
     }
 
-    void Update()
+    void FixedUpdate()
     {
-        if (pointA == null || pointB == null) return; // Segurança extra
-
+        if (!enabled || currentTarget == null) return;
         if (isWaiting)
         {
-            waitTimer -= Time.deltaTime;
-            if (waitTimer <= 0)
-            {
-                isWaiting = false;
-                // Troca o alvo após esperar
-                SwitchTarget();
-            }
-            return; // Não se move enquanto espera
+            waitTimer -= Time.fixedDeltaTime;
+            if (waitTimer <= 0f) { isWaiting = false; SwitchTarget(); }
+            return;
         }
-
-        // Move a plataforma em direção ao alvo atual
-        // Garantir que currentTarget foi definido
-        if (currentTarget == null)
+        Vector3 newPosition = Vector3.MoveTowards(rbPlatform.position, currentTarget.position, speed * Time.fixedDeltaTime);
+        rbPlatform.MovePosition(newPosition);
+        if (Vector3.Distance(newPosition, currentTarget.position) < arrivalThreshold)
         {
-            // Isso não deveria acontecer se Start() rodou corretamente
-            Debug.LogError($"currentTarget é nulo em Update para '{gameObject.name}'. Reiniciando alvo.", this);
-            currentTarget = isMovingToB ? pointB : pointA;
-            if (currentTarget == null) return; // Ainda nulo, problema maior.
-        }
-
-        transform.position = Vector3.MoveTowards(transform.position, currentTarget.position, speed * Time.deltaTime);
-
-        // Verifica se chegou MUITO PERTO do alvo
-        // Aumentar um pouco a tolerância pode ajudar se estiver "pulando" o ponto
-        if (Vector3.Distance(transform.position, currentTarget.position) < 5f) // Tolerância de 5cm
-        {
-
+            rbPlatform.MovePosition(currentTarget.position);
             isWaiting = true;
-            waitTimer = waitTime;
-            if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' chegou em {currentTarget.name}. Esperando por {waitTime}s.");
+            waitTimer = waitTimeAtPoints;
+            if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' chegou em {currentTarget.name}.");
         }
     }
 
     void SwitchTarget()
     {
-        if (isMovingToB) // Estava indo para B, agora vai para A
-        {
-            currentTarget = pointA;
-            isMovingToB = false;
-            if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' mudando alvo para A.");
-        }
-        else // Estava indo para A, agora vai para B
-        {
-            currentTarget = pointB;
-            isMovingToB = true;
-            if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' mudando alvo para B.");
-        }
-
-        // Segurança extra para caso os pontos sejam nulos neste momento (não deveria acontecer)
-        if (currentTarget == null)
-        {
-            Debug.LogError($"Falha ao trocar alvo para '{gameObject.name}', um dos pontos é nulo.", this);
-            enabled = false;
-        }
+        isMovingToB = !isMovingToB;
+        currentTarget = isMovingToB ? pointB : pointA;
+        if (logStateChanges) Debug.Log($"Plataforma '{gameObject.name}' trocou alvo para: {currentTarget.name}.");
     }
 
-
-    // Mantém a lógica de "grudar" o jogador
+    // Quando o jogador ENCOSTA na plataforma (colisão física)
     void OnCollisionEnter(Collision collision)
     {
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.transform.SetParent(transform, true); // true para manter a posição/rotação mundial
+            ContactPoint contact = collision.contacts[0];
+            // Verifica se o jogador colidiu com a parte de CIMA da plataforma
+            if (Vector3.Dot(contact.normal, transform.up) > 0.5f) // Ajuste este valor se necessário (0.1 a 0.9)
+            {
+                FakeRollCapsuleController playerController = collision.gameObject.GetComponent<FakeRollCapsuleController>();
+                if (playerController != null)
+                {
+                    // Avisa o jogador que ele deve grudar e parar de se mover por conta própria
+                    playerController.AttachToPlatform(transform); // Passa o transform DESTA plataforma
+                    if (logStateChanges) Debug.Log($"Jogador '{collision.gameObject.name}' PISOU EM CIMA. Avisando para grudar.");
+                }
+            }
         }
     }
 
-    void OnCollisionExit(Collision collision)
-    {
-        if (collision.gameObject.CompareTag("Player"))
-        {
-            collision.transform.SetParent(null);
-        }
-    }
+    // Por enquanto, não vamos desgrudar automaticamente no OnCollisionExit para o teste de "estátua"
+    // void OnCollisionExit(Collision collision) { /* ... */ }
 
-    // Gizmos permanecem úteis
 #if UNITY_EDITOR
-    void OnDrawGizmosSelected()
+void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.cyan; // Cor geral para a plataforma
-        if (pointA != null && pointB != null)
-        {
-            Gizmos.DrawLine(pointA.position, pointB.position);
-        }
+        Gizmos.color = Color.yellow;
+        float gizmoSphereRadius = 0.25f;
+        if (pointA != null) { Gizmos.DrawWireSphere(pointA.position, gizmoSphereRadius); UnityEditor.Handles.Label(pointA.position + Vector3.up * 0.5f, "Ponto A"); }
+        if (pointB != null) { Gizmos.DrawWireSphere(pointB.position, gizmoSphereRadius); UnityEditor.Handles.Label(pointB.position + Vector3.up * 0.5f, "Ponto B"); }
+        if (pointA != null && pointB != null) { Gizmos.DrawLine(pointA.position, pointB.position); }
 
-        if (pointA != null)
-        {
-            Gizmos.color = isMovingToB ? Color.gray : Color.green; // Verde se está indo para A
-            Gizmos.DrawWireSphere(pointA.position, 0.3f);
-            UnityEditor.Handles.Label(pointA.position + Vector3.up * 0.5f, "Ponto A");
-        }
-        if (pointB != null)
-        {
-            Gizmos.color = isMovingToB ? Color.red : Color.gray; // Vermelho se está indo para B
-            Gizmos.DrawWireSphere(pointB.position, 0.3f);
-            UnityEditor.Handles.Label(pointB.position + Vector3.up * 0.5f, "Ponto B");
-        }
-
-        // Mostra o alvo atual
-        if (Application.isPlaying && currentTarget != null)
+        if (Application.isPlaying && currentTarget != null && enabled)
         {
             Gizmos.color = Color.magenta;
-            Gizmos.DrawLine(transform.position, currentTarget.position);
-            Gizmos.DrawWireSphere(currentTarget.position, 0.4f); // Maior para destacar
+            Vector3 platformPos = rbPlatform != null ? rbPlatform.position : transform.position;
+            Gizmos.DrawLine(platformPos, currentTarget.position);
+            Gizmos.DrawWireSphere(currentTarget.position, gizmoSphereRadius + 0.1f);
             UnityEditor.Handles.Label(currentTarget.position + Vector3.up * 0.7f, "ALVO ATUAL");
         }
     }
