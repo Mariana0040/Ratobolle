@@ -1,123 +1,158 @@
 using UnityEngine;
 using UnityEngine.AI;
+using System.Collections.Generic; // Importante para usar Listas
 
 [RequireComponent(typeof(NavMeshAgent))]
+[RequireComponent(typeof(Animator))]
 public class GatoHumanoideAI : MonoBehaviour
 {
-    // --- Variáveis de Patrulha ---
     [Header("Patrulha")]
-    public Transform[] pontosDePatrulha;
-    private int indicePontoAtual = 0;
+    [Tooltip("Lista de pontos de patrulha.")]
+    public List<Transform> pontosPatrulha;
+    [Tooltip("Velocidade do chefe durante a patrulha.")]
+    public float velocidadePatrulha = 3.0f;
 
-    // --- Variáveis de Perseguição ---
     [Header("Perseguição")]
-    public Transform jogador;
-    public float raioDeVisao = 15f;
-    public float raioDeAtaque = 2f;
+    [Tooltip("O alvo a ser perseguido (o jogador).")]
+    public Transform alvo;
+    [Tooltip("A que distância o chefe detecta o jogador.")]
+    public float distanciaDeteccao = 10.0f;
+    [Tooltip("Velocidade do chefe ao perseguir o jogador.")]
+    public float velocidadePerseguicao = 6.0f;
 
-    // --- Componentes e Estado ---
     private NavMeshAgent agente;
+    private Animator animator;
+
     private enum Estado { Patrulhando, Perseguindo }
     private Estado estadoAtual;
+    private int indicePontoAtual = 0; // Índice do ponto atual na lista de patrulha
 
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
+        animator = GetComponent<Animator>();
 
-        // Tenta encontrar o jogador pela tag "Player" se não for atribuído no Inspector
-        if (jogador == null)
+        agente.updateRotation = false; // Desativa a rotação automática do NavMeshAgent
+        agente.angularSpeed = 0; // Impede rotação suave
+
+        if (pontosPatrulha.Count > 0)
         {
-            GameObject jogadorObj = GameObject.FindGameObjectWithTag("Player");
-            if (jogadorObj != null)
-            {
-                jogador = jogadorObj.transform;
-            }
-            else
-            {
-                Debug.LogError("ERRO: Jogador não encontrado! Verifique se o objeto do jogador tem a tag 'Player' ou atribua-o manualmente no Inspector.");
-                // Desativa o script se não houver jogador para evitar mais erros
-                this.enabled = false;
-                return;
-            }
+            estadoAtual = Estado.Patrulhando;
+            MoverParaProximoPonto();
+        }
+        else
+        {
+            Debug.LogError("Nenhum ponto de patrulha definido para o Chefe de Cozinha!");
+            estadoAtual = Estado.Patrulhando; // Fica no estado de patrulha, mas sem destino
         }
 
-        // Configurações iniciais do agente
-        agente.autoBraking = false;
-        estadoAtual = Estado.Patrulhando;
-        IrParaProximoPonto();
+        // Tenta encontrar o jogador pela tag se não for definido no Inspector
+        if (alvo == null)
+        {
+            GameObject jogador = GameObject.FindGameObjectWithTag("Player");
+            if (jogador != null)
+            {
+                alvo = jogador.transform;
+            }
+        }
     }
 
     void Update()
     {
-        // Se o jogador ou o agente não existirem, não faz nada.
-        if (jogador == null || agente == null) return;
+        GerenciarEstados();
 
-        // Lógica de mudança de estado
-        float distanciaDoJogador = Vector3.Distance(jogador.position, transform.position);
+        switch (estadoAtual)
+        {
+            case Estado.Patrulhando:
+                ExecutarPatrulha();
+                break;
+            case Estado.Perseguindo:
+                ExecutarPerseguicao();
+                break;
+        }
 
-        if (distanciaDoJogador <= raioDeVisao)
+        AtualizarAnimacao();
+        RotacaoEmBlocos();
+    }
+
+    private void GerenciarEstados()
+    {
+        if (alvo == null) return; // Não faz nada se não houver um alvo
+
+        float distanciaParaAlvo = Vector3.Distance(transform.position, alvo.position);
+
+        if (distanciaParaAlvo <= distanciaDeteccao && estadoAtual == Estado.Patrulhando)
         {
             estadoAtual = Estado.Perseguindo;
         }
-        else
+        else if (distanciaParaAlvo > distanciaDeteccao && estadoAtual == Estado.Perseguindo)
         {
             estadoAtual = Estado.Patrulhando;
         }
-
-        // Executa o comportamento com base no estado atual
-        if (estadoAtual == Estado.Perseguindo)
-        {
-            PerseguirJogador();
-        }
-        else // Patrulhando
-        {
-            Patrulhar();
-        }
     }
 
-    void Patrulhar()
+    private void ExecutarPatrulha()
     {
-        // Se o agente estiver perto do destino, vai para o próximo ponto
+        // Verifica se chegou ao destino de patrulha
         if (!agente.pathPending && agente.remainingDistance < 0.5f)
         {
-            IrParaProximoPonto();
+            MoverParaProximoPonto();
         }
     }
 
-    void PerseguirJogador()
+    private void ExecutarPerseguicao()
     {
-        // Verifica novamente para garantir (embora já verificado no Update)
-        if (jogador == null) return;
+        agente.speed = velocidadePerseguicao;
+        MoverPara(alvo.position, velocidadePerseguicao);
+    }
 
-        float distancia = Vector3.Distance(jogador.position, transform.position);
+    private void MoverPara(Vector3 destino, float velocidade)
+    {
+        agente.speed = velocidade;
+        agente.SetDestination(destino);
+    }
 
-        // Para de seguir se estiver dentro do raio de "ataque"
-        if (distancia <= raioDeAtaque)
+    private void MoverParaProximoPonto()
+    {
+        if (pontosPatrulha.Count == 0) return; // Não faz nada se não houver pontos
+
+        // Define o destino para o próximo ponto na lista
+        Vector3 destino = pontosPatrulha[indicePontoAtual].position;
+        MoverPara(destino, velocidadePatrulha);
+
+        // Incrementa o índice para o próximo ponto, voltando ao início se chegar ao fim da lista
+        indicePontoAtual = (indicePontoAtual + 1) % pontosPatrulha.Count;
+    }
+
+    private void RotacaoEmBlocos()
+    {
+        if (agente.velocity.sqrMagnitude > 0.1f)
         {
-            agente.isStopped = true;
-        }
-        else
-        {
-            agente.isStopped = false;
-            // ESTA É A LINHA CRÍTICA - agora está segura pelas verificações acima
-            agente.SetDestination(jogador.position);
+            Vector3 direcao = agente.velocity.normalized;
+
+            if (Mathf.Abs(direcao.x) > Mathf.Abs(direcao.z))
+            {
+                direcao.z = 0;
+            }
+            else
+            {
+                direcao.x = 0;
+            }
+
+            Quaternion lookRotation = Quaternion.LookRotation(direcao);
+            transform.rotation = lookRotation;
         }
     }
 
-    void IrParaProximoPonto()
+    private void AtualizarAnimacao()
     {
-        if (pontosDePatrulha.Length == 0) return;
-
-        agente.destination = pontosDePatrulha[indicePontoAtual].position;
-        indicePontoAtual = (indicePontoAtual + 1) % pontosDePatrulha.Length;
+        bool estaAndando = agente.velocity.magnitude > 0.1f;
+        animator.SetBool("isWalking", estaAndando);
     }
 
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, raioDeVisao);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, raioDeAtaque);
+        Gizmos.DrawWireSphere(transform.position, distanciaDeteccao);
     }
 }
