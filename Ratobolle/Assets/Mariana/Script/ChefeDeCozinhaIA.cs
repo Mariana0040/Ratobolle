@@ -1,66 +1,57 @@
 using UnityEngine;
 using UnityEngine.AI;
-using System.Collections.Generic; // Importante para usar Listas
+using System.Collections.Generic;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
+[RequireComponent(typeof(ControleDeAtaqueChefe))] // Garante que o script de ataque também esteja presente
 public class ChefeDeCozinhaAI : MonoBehaviour
 {
+    // --- ESTADO ATUAL ---
+    private enum Estado { Patrulhando, Perseguindo, Atacando }
+    private Estado estadoAtual;
+
     [Header("Patrulha")]
-    [Tooltip("Lista de pontos de patrulha.")]
     public List<Transform> pontosPatrulha;
-    [Tooltip("Velocidade do chefe durante a patrulha.")]
     public float velocidadePatrulha = 3.0f;
 
     [Header("Perseguição")]
-    [Tooltip("O alvo a ser perseguido (o jogador).")]
     public Transform alvo;
-    [Tooltip("A que distância o chefe detecta o jogador.")]
     public float distanciaDeteccao = 10.0f;
-    [Tooltip("Velocidade do chefe ao perseguir o jogador.")]
     public float velocidadePerseguicao = 6.0f;
 
+    // --- REFERÊNCIAS ---
     private NavMeshAgent agente;
     private Animator animator;
+    private ControleDeAtaqueChefe sistemaDeAtaque; // Referência para o Sistema de Armas
 
-    private enum Estado { Patrulhando, Perseguindo }
-    private Estado estadoAtual;
-    private int indicePontoAtual = 0; // Índice do ponto atual na lista de patrulha
+    // --- CONTROLE INTERNO ---
+    private int indicePontoAtual = 0;
 
     void Start()
     {
+        // Pega todos os componentes necessários
         agente = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
+        sistemaDeAtaque = GetComponent<ControleDeAtaqueChefe>(); // Pega a referência do script de ataque
 
-        agente.updateRotation = false; // Desativa a rotação automática do NavMeshAgent
-        agente.angularSpeed = 0; // Impede rotação suave
+        // Configurações do agente
+        agente.updateRotation = false;
+        agente.angularSpeed = 0;
 
+        // Inicia na patrulha
+        estadoAtual = Estado.Patrulhando;
         if (pontosPatrulha.Count > 0)
         {
-            estadoAtual = Estado.Patrulhando;
             MoverParaProximoPonto();
-        }
-        else
-        {
-            Debug.LogError("Nenhum ponto de patrulha definido para o Chefe de Cozinha!");
-            estadoAtual = Estado.Patrulhando; // Fica no estado de patrulha, mas sem destino
-        }
-
-        // Tenta encontrar o jogador pela tag se não for definido no Inspector
-        if (alvo == null)
-        {
-            GameObject jogador = GameObject.FindGameObjectWithTag("Player");
-            if (jogador != null)
-            {
-                alvo = jogador.transform;
-            }
         }
     }
 
     void Update()
     {
-        GerenciarEstados();
+        GerenciarEstados(); // Decide o que fazer
 
+        // Executa a ação do estado atual
         switch (estadoAtual)
         {
             case Estado.Patrulhando:
@@ -69,23 +60,30 @@ public class ChefeDeCozinhaAI : MonoBehaviour
             case Estado.Perseguindo:
                 ExecutarPerseguicao();
                 break;
+            case Estado.Atacando:
+                ExecutarAtaque();
+                break;
         }
 
-        AtualizarAnimacao();
-        RotacaoEmBlocos();
+        AtualizarAnimacaoERotacao();
     }
 
     private void GerenciarEstados()
     {
-        if (alvo == null) return; // Não faz nada se não houver um alvo
+        if (alvo == null) return;
 
         float distanciaParaAlvo = Vector3.Distance(transform.position, alvo.position);
 
-        if (distanciaParaAlvo <= distanciaDeteccao && estadoAtual == Estado.Patrulhando)
+        // A distância de ataque tem a maior prioridade
+        if (distanciaParaAlvo <= sistemaDeAtaque.distanciaDeAtaque)
+        {
+            estadoAtual = Estado.Atacando;
+        }
+        else if (distanciaParaAlvo <= distanciaDeteccao)
         {
             estadoAtual = Estado.Perseguindo;
         }
-        else if (distanciaParaAlvo > distanciaDeteccao && estadoAtual == Estado.Perseguindo)
+        else
         {
             estadoAtual = Estado.Patrulhando;
         }
@@ -93,7 +91,9 @@ public class ChefeDeCozinhaAI : MonoBehaviour
 
     private void ExecutarPatrulha()
     {
-        // Verifica se chegou ao destino de patrulha
+        agente.isStopped = false; // Garante que ele possa se mover
+        agente.speed = velocidadePatrulha;
+
         if (!agente.pathPending && agente.remainingDistance < 0.5f)
         {
             MoverParaProximoPonto();
@@ -102,57 +102,59 @@ public class ChefeDeCozinhaAI : MonoBehaviour
 
     private void ExecutarPerseguicao()
     {
+        agente.isStopped = false; // Garante que ele possa se mover
         agente.speed = velocidadePerseguicao;
-        MoverPara(alvo.position, velocidadePerseguicao);
+        MoverPara(alvo.position);
     }
 
-    private void MoverPara(Vector3 destino, float velocidade)
+    private void ExecutarAtaque()
     {
-        agente.speed = velocidade;
+        // --- ORDENA QUE O CHEFE PARE IMEDIATAMENTE ---
+        agente.isStopped = true;
+
+        // Encarar o jogador para o ataque
+        Vector3 direcao = (alvo.position - transform.position).normalized;
+        transform.rotation = Quaternion.LookRotation(new Vector3(direcao.x, 0, direcao.z));
+
+        // --- MANDA O "SISTEMA DE ARMAS" TENTAR ATACAR ---
+        sistemaDeAtaque.TentarAtaque();
+    }
+
+    // --- Funções Auxiliares ---
+
+    private void MoverPara(Vector3 destino)
+    {
         agente.SetDestination(destino);
     }
 
     private void MoverParaProximoPonto()
     {
-        if (pontosPatrulha.Count == 0) return; // Não faz nada se não houver pontos
-
-        // Define o destino para o próximo ponto na lista
+        if (pontosPatrulha.Count == 0) return;
         Vector3 destino = pontosPatrulha[indicePontoAtual].position;
-        MoverPara(destino, velocidadePatrulha);
-
-        // Incrementa o índice para o próximo ponto, voltando ao início se chegar ao fim da lista
+        MoverPara(destino);
         indicePontoAtual = (indicePontoAtual + 1) % pontosPatrulha.Count;
+    }
+
+    private void AtualizarAnimacaoERotacao()
+    {
+        // Só ativa a animação de andar se o agente não estiver parado
+        bool estaAndando = !agente.isStopped && agente.velocity.magnitude > 0.1f;
+        animator.SetBool("isWalking", estaAndando);
+
+        // Só faz a rotação em blocos quando não está atacando
+        if (estadoAtual != Estado.Atacando && estaAndando)
+        {
+            RotacaoEmBlocos();
+        }
     }
 
     private void RotacaoEmBlocos()
     {
-        if (agente.velocity.sqrMagnitude > 0.1f)
+        Vector3 direcao = agente.velocity.normalized;
+        if (direcao != Vector3.zero)
         {
-            Vector3 direcao = agente.velocity.normalized;
-
-            if (Mathf.Abs(direcao.x) > Mathf.Abs(direcao.z))
-            {
-                direcao.z = 0;
-            }
-            else
-            {
-                direcao.x = 0;
-            }
-
             Quaternion lookRotation = Quaternion.LookRotation(direcao);
             transform.rotation = lookRotation;
         }
-    }
-
-    private void AtualizarAnimacao()
-    {
-        bool estaAndando = agente.velocity.magnitude > 0.1f;
-        animator.SetBool("isWalking", estaAndando);
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, distanciaDeteccao);
     }
 }
