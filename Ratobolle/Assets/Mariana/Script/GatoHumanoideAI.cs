@@ -1,65 +1,54 @@
 using UnityEngine;
 using UnityEngine.AI;
-using System.Collections.Generic; // Importante para usar Listas
+using System.Collections.Generic;
 
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
 public class GatoHumanoideAI : MonoBehaviour
 {
+    // --- NOVO: Chave que permite a perseguição ---
+    private bool podePerseguir = false;
+
     [Header("Patrulha")]
-    [Tooltip("Lista de pontos de patrulha.")]
     public List<Transform> pontosPatrulha;
-    [Tooltip("Velocidade do chefe durante a patrulha.")]
-    public float velocidadePatrulha = 3.0f;
+    public float velocidadePatrulha = 3.0f; // Velocidade para andar
 
     [Header("Perseguição")]
-    [Tooltip("O alvo a ser perseguido (o jogador).")]
     public Transform alvo;
-    [Tooltip("A que distância o chefe detecta o jogador.")]
     public float distanciaDeteccao = 10.0f;
-    [Tooltip("Velocidade do chefe ao perseguir o jogador.")]
-    public float velocidadePerseguicao = 6.0f;
+    public float velocidadePerseguicao = 6.0f; // Velocidade para correr
 
     private NavMeshAgent agente;
     private Animator animator;
 
     private enum Estado { Patrulhando, Perseguindo }
     private Estado estadoAtual;
-    private int indicePontoAtual = 0; // Índice do ponto atual na lista de patrulha
+    private int indicePontoAtual = 0;
 
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
         animator = GetComponent<Animator>();
 
-        agente.updateRotation = false; // Desativa a rotação automática do NavMeshAgent
-        agente.angularSpeed = 0; // Impede rotação suave
+        agente.updateRotation = false;
+        agente.angularSpeed = 0;
 
+        // Inicia o comportamento de patrulha normalmente
+        estadoAtual = Estado.Patrulhando;
         if (pontosPatrulha.Count > 0)
         {
-            estadoAtual = Estado.Patrulhando;
             MoverParaProximoPonto();
         }
-        else
-        {
-            Debug.LogError("Nenhum ponto de patrulha definido para o Chefe de Cozinha!");
-            estadoAtual = Estado.Patrulhando; // Fica no estado de patrulha, mas sem destino
-        }
 
-        // Tenta encontrar o jogador pela tag se não for definido no Inspector
-        if (alvo == null)
+        if (alvo == null && GameObject.FindGameObjectWithTag("Player") != null)
         {
-            GameObject jogador = GameObject.FindGameObjectWithTag("Player");
-            if (jogador != null)
-            {
-                alvo = jogador.transform;
-            }
+            alvo = GameObject.FindGameObjectWithTag("Player").transform;
         }
     }
 
     void Update()
     {
-        GerenciarEstados();
+        GerenciarEstados(); // Decide o que fazer
 
         switch (estadoAtual)
         {
@@ -75,25 +64,44 @@ public class GatoHumanoideAI : MonoBehaviour
         RotacaoEmBlocos();
     }
 
+    // --- NOVO: Detecta quando o jogador encosta no gatilho ---
+    private void OnTriggerEnter(Collider other)
+    {
+        // Se o modo de perseguição já foi liberado, não faz nada
+        if (podePerseguir) return;
+
+        // Verifica se quem encostou tem a tag "Player"
+        if (other.CompareTag("Player"))
+        {
+            Debug.Log("GATO ATIVADO! Agora ele pode perseguir o Gordito!");
+            podePerseguir = true; // Liga a chave
+        }
+    }
+
     private void GerenciarEstados()
     {
-        if (alvo == null) return; // Não faz nada se não houver um alvo
+        if (alvo == null) return;
 
         float distanciaParaAlvo = Vector3.Distance(transform.position, alvo.position);
 
-        if (distanciaParaAlvo <= distanciaDeteccao && estadoAtual == Estado.Patrulhando)
+        // --- LÓGICA MODIFICADA ---
+        // A condição para perseguir agora precisa que a chave 'podePerseguir' esteja ligada
+        if (podePerseguir && distanciaParaAlvo <= distanciaDeteccao)
         {
             estadoAtual = Estado.Perseguindo;
         }
-        else if (distanciaParaAlvo > distanciaDeteccao && estadoAtual == Estado.Perseguindo)
+        else
         {
+            // Em todos os outros casos (jogador longe OU a chave 'podePerseguir' está desligada),
+            // ele continua patrulhando.
             estadoAtual = Estado.Patrulhando;
         }
     }
 
     private void ExecutarPatrulha()
     {
-        // Verifica se chegou ao destino de patrulha
+        agente.speed = velocidadePatrulha; // Define a velocidade de andar
+
         if (!agente.pathPending && agente.remainingDistance < 0.5f)
         {
             MoverParaProximoPonto();
@@ -102,25 +110,21 @@ public class GatoHumanoideAI : MonoBehaviour
 
     private void ExecutarPerseguicao()
     {
-        agente.speed = velocidadePerseguicao;
-        MoverPara(alvo.position, velocidadePerseguicao);
+        agente.speed = velocidadePerseguicao; // Define a velocidade de correr
+        MoverPara(alvo.position);
     }
 
-    private void MoverPara(Vector3 destino, float velocidade)
+    private void MoverPara(Vector3 destino)
     {
-        agente.speed = velocidade;
         agente.SetDestination(destino);
     }
 
     private void MoverParaProximoPonto()
     {
-        if (pontosPatrulha.Count == 0) return; // Não faz nada se não houver pontos
-
-        // Define o destino para o próximo ponto na lista
+        if (pontosPatrulha.Count == 0) return;
         Vector3 destino = pontosPatrulha[indicePontoAtual].position;
-        MoverPara(destino, velocidadePatrulha);
-
-        // Incrementa o índice para o próximo ponto, voltando ao início se chegar ao fim da lista
+        agente.speed = velocidadePatrulha; // Garante que a velocidade de patrulha seja usada
+        MoverPara(destino);
         indicePontoAtual = (indicePontoAtual + 1) % pontosPatrulha.Count;
     }
 
@@ -139,15 +143,25 @@ public class GatoHumanoideAI : MonoBehaviour
                 direcao.x = 0;
             }
 
-            Quaternion lookRotation = Quaternion.LookRotation(direcao);
-            transform.rotation = lookRotation;
+            if (direcao != Vector3.zero)
+            {
+                Quaternion lookRotation = Quaternion.LookRotation(direcao);
+                transform.rotation = lookRotation;
+            }
         }
     }
 
     private void AtualizarAnimacao()
     {
-        bool estaAndando = agente.velocity.magnitude > 0.1f;
-        animator.SetBool("isWalking", estaAndando);
+        // Verifica se o agente está se movendo
+        bool estaSeMovendo = agente.velocity.magnitude > 0.1f;
+
+        // Verifica se o estado atual é de perseguição (correndo)
+        bool estaCorrendo = estadoAtual == Estado.Perseguindo;
+
+        // Atualiza os parâmetros no Animator
+        animator.SetBool("isWalking", estaSeMovendo && !estaCorrendo); // Só anda se estiver se movendo E NÃO correndo
+        animator.SetBool("isRunning", estaSeMovendo && estaCorrendo);  // Só corre se estiver se movendo E no estado de perseguição
     }
 
     void OnDrawGizmosSelected()
