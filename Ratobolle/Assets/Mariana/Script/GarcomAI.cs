@@ -3,43 +3,44 @@ using UnityEngine.AI;
 using System.Collections.Generic;
 
 [RequireComponent(typeof(NavMeshAgent))]
-[RequireComponent(typeof(Animator))]
 public class GarcomAI : MonoBehaviour
 {
-    // --- ESTADOS DO GARÇOM ---
-    private enum Estado { Patrulhando, Perseguindo, Capturado }
-    private Estado estadoAtual;
+    // Chave que permite a perseguição
+    private bool podePerseguir = false;
 
-    [Header("Patrulha e Perseguição")]
+    [Header("Patrulha")]
     public List<Transform> pontosPatrulha;
-    public float velocidadePatrulha = 3.0f;
-    public float velocidadePerseguicao = 7.0f; // Garçons são rápidos!
+    public float velocidadePatrulha = 3.0f; // Velocidade de andar
+
+    [Header("Perseguição")]
     public Transform alvo;
+    public float distanciaDeteccao = 10.0f;
+    public float velocidadePerseguicao = 6.0f; // Velocidade de correr
 
-    [Header("Efeito de Raiva")]
-    [Tooltip("O material vermelho que será aplicado quando ele capturar o jogador.")]
-    public Material materialVermelho;
-    [Tooltip("Arraste para cá o componente Skinned Mesh Renderer do modelo do garçom.")]
-    public Renderer modeloDoPersonagem;
-
-    // --- COMPONENTES E CONTROLE ---
+    // Componentes
     private NavMeshAgent agente;
-    private Animator animator;
+    public Animator animator;
+
+    // Controle de estado
+    private enum Estado { Patrulhando, Perseguindo }
+    private Estado estadoAtual;
     private int indicePontoAtual = 0;
-    private bool foiAtivado = false; // Chave para iniciar a perseguição
 
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
-        animator = GetComponent<Animator>();
 
-        // Começa patrulhando normalmente
+        agente.updateRotation = false;
+        agente.angularSpeed = 0;
+
+        // Começa a patrulhar imediatamente
         estadoAtual = Estado.Patrulhando;
         if (pontosPatrulha.Count > 0)
         {
             MoverParaProximoPonto();
         }
 
+        // Encontra o jogador se não for definido
         if (alvo == null && GameObject.FindGameObjectWithTag("Player") != null)
         {
             alvo = GameObject.FindGameObjectWithTag("Player").transform;
@@ -48,7 +49,8 @@ public class GarcomAI : MonoBehaviour
 
     void Update()
     {
-        // Roda a lógica baseada no estado atual
+        GerenciarEstados();
+
         switch (estadoAtual)
         {
             case Estado.Patrulhando:
@@ -57,49 +59,45 @@ public class GarcomAI : MonoBehaviour
             case Estado.Perseguindo:
                 ExecutarPerseguicao();
                 break;
-            case Estado.Capturado:
-                // Não faz nada, fica parado e com raiva.
-                break;
         }
+
         AtualizarAnimacao();
+        RotacaoEmBlocos();
     }
 
-    // --- DETECÇÃO E CAPTURA ---
-
-    // Chamado quando o jogador entra na ÁREA DE VISÃO (Trigger)
+    // Detecta quando o jogador encosta no gatilho para ativar a perseguição
     private void OnTriggerEnter(Collider other)
     {
-        // Se já foi ativado ou já capturou o jogador, não faz nada
-        if (foiAtivado || estadoAtual == Estado.Capturado) return;
+        if (podePerseguir) return; // Se já pode perseguir, não faz nada
 
         if (other.CompareTag("Player"))
         {
-            Debug.Log("Garçom viu o Gordito! Iniciando perseguição!");
-            foiAtivado = true;
+            Debug.Log("GARÇOM ATIVADO! Agora ele pode perseguir!");
+            podePerseguir = true;
+        }
+    }
+
+    private void GerenciarEstados()
+    {
+        if (alvo == null) return;
+
+        float distanciaParaAlvo = Vector3.Distance(transform.position, alvo.position);
+
+        // A perseguição só é uma opção se a chave 'podePerseguir' estiver ligada
+        if (podePerseguir && distanciaParaAlvo <= distanciaDeteccao)
+        {
             estadoAtual = Estado.Perseguindo;
         }
-    }
-
-    // Chamado quando o garçom ENCOSTA FISICAMENTE no jogador (Collision)
-    private void OnCollisionEnter(Collision collision)
-    {
-        // Só captura se estiver no estado de perseguição
-        if (estadoAtual != Estado.Perseguindo) return;
-
-        if (collision.gameObject.CompareTag("Player"))
+        else
         {
-            Debug.Log("Garçom capturou o Gordito! FÚRIA!");
-            CapturarJogador();
+            // Senão, ele sempre patrulha
+            estadoAtual = Estado.Patrulhando;
         }
     }
-
-    // --- COMPORTAMENTOS ---
 
     private void ExecutarPatrulha()
     {
         agente.speed = velocidadePatrulha;
-        agente.isStopped = false;
-
         if (!agente.pathPending && agente.remainingDistance < 0.5f)
         {
             MoverParaProximoPonto();
@@ -109,36 +107,45 @@ public class GarcomAI : MonoBehaviour
     private void ExecutarPerseguicao()
     {
         agente.speed = velocidadePerseguicao;
-        agente.isStopped = false;
         agente.SetDestination(alvo.position);
     }
-
-    private void CapturarJogador()
-    {
-        estadoAtual = Estado.Capturado;
-        agente.isStopped = true; // PARA O MOVIMENTO
-
-        // Troca o material para vermelho
-        if (modeloDoPersonagem != null && materialVermelho != null)
-        {
-            modeloDoPersonagem.material = materialVermelho;
-        }
-    }
-
-    // --- FUNÇÕES AUXILIARES ---
 
     private void MoverParaProximoPonto()
     {
         if (pontosPatrulha.Count == 0) return;
+        agente.speed = velocidadePatrulha;
         agente.SetDestination(pontosPatrulha[indicePontoAtual].position);
         indicePontoAtual = (indicePontoAtual + 1) % pontosPatrulha.Count;
     }
 
+    private void RotacaoEmBlocos()
+    {
+        if (agente.velocity.sqrMagnitude > 0.1f)
+        {
+            Vector3 direcao = agente.velocity.normalized;
+
+            if (Mathf.Abs(direcao.x) > Mathf.Abs(direcao.z)) { direcao.z = 0; }
+            else { direcao.x = 0; }
+
+            if (direcao != Vector3.zero)
+            {
+                transform.rotation = Quaternion.LookRotation(direcao);
+            }
+        }
+    }
+
     private void AtualizarAnimacao()
     {
-        // Animação de andar só se estiver patrulhando
-        animator.SetBool("isWalking", estadoAtual == Estado.Patrulhando);
-        // Animação de correr só se estiver perseguindo
-        animator.SetBool("isRunning", estadoAtual == Estado.Perseguindo);
+        // Se o estado é 'Perseguindo', ativa a animação de correr.
+        // Senão, desativa (o que fará ele voltar para a animação de andar).
+        bool estaCorrendo = (estadoAtual == Estado.Perseguindo);
+
+        animator.SetBool("isRunning", estaCorrendo);
+    }
+
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, distanciaDeteccao);
     }
 }
