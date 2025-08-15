@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8c0680e661f95e44dabc5ae001775031
+guid: d81c00eba7cd9b04a86287eeecc2d304
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -136,13 +136,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_0
+      name: Ingredientes 7_0
       rect:
         serializedVersion: 2
-        x: 147
-        y: 71
-        width: 375
-        height: 160
+        x: 23
+        y: 787
+        width: 292
+        height: 272
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -151,20 +151,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 827e57585dd5c544a97ba04f2d871c37
-      internalID: -1945315435
+      spriteID: ade06f4653a8df94eb255b15f3f016ab
+      internalID: 1950411454
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_1
+      name: Ingredientes 7_1
       rect:
         serializedVersion: 2
-        x: 395
-        y: 73
-        width: 127
-        height: 156
+        x: 594
+        y: 770
+        width: 235
+        height: 289
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -173,20 +173,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 1eaeaf53a6066d0468df2875bcf02c08
-      internalID: 1702112733
+      spriteID: e884f66d00d67ba46b486505cf9a426b
+      internalID: 219668884
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_2
+      name: Ingredientes 7_2
       rect:
         serializedVersion: 2
-        x: 522
-        y: 71
-        width: 128
-        height: 162
+        x: 1196
+        y: 814
+        width: 201
+        height: 252
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -195,20 +195,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 6aab41851888ac14182636dfe3bcf749
-      internalID: 1014407300
+      spriteID: 6ba21d0c9198a57429c39d72963d57ab
+      internalID: -1825548996
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_3
+      name: Ingredientes 7_3
       rect:
         serializedVersion: 2
-        x: 0
-        y: 59
-        width: 144
-        height: 260
+        x: 1680
+        y: 807
+        width: 214
+        height: 262
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -217,20 +217,152 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4f7d02a08f7c84647bcef0ad7243192c
-      internalID: 716938296
+      spriteID: eacc7e7906ffc48438c23425f6640854
+      internalID: 2027745142
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_4
+      name: Ingredientes 7_4
       rect:
         serializedVersion: 2
-        x: 0
-        y: 67
-        width: 506
-        height: 257
+        x: 298
+        y: 508
+        width: 306
+        height: 238
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: aabe9d79227eb48419837cd2212fb3c8
+      internalID: -1807316145
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ingredientes 7_5
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 487
+        width: 354
+        height: 238
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 046ba3cc2c24b804a9285fa2bb12a500
+      internalID: -2077291589
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ingredientes 7_6
+      rect:
+        serializedVersion: 2
+        x: 1441
+        y: 470
+        width: 286
+        height: 232
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 52340a57afdbbd34aa63bad71e95afeb
+      internalID: -126970096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ingredientes 7_7
+      rect:
+        serializedVersion: 2
+        x: 57
+        y: 133
+        width: 245
+        height: 276
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 65f69255d6b67de4e80a167980370042
+      internalID: 527202381
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ingredientes 7_8
+      rect:
+        serializedVersion: 2
+        x: 608
+        y: 110
+        width: 255
+        height: 251
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 87e31f0ebe561ee4bb10d3e91cfac51e
+      internalID: 1322733757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ingredientes 7_9
+      rect:
+        serializedVersion: 2
+        x: 1088
+        y: 137
+        width: 343
+        height: 258
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f6d3746fad714945a25de48466ea263
+      internalID: -500639792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Ingredientes 7_10
+      rect:
+        serializedVersion: 2
+        x: 1666
+        y: 137
+        width: 211
+        height: 224
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -239,8 +371,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d67bfcad3e4c4a4689b8d6f4cca2afe
-      internalID: 1032433136
+      spriteID: bd57622e0119af14395ce90cacef93a5
+      internalID: 1565758938
       vertices: []
       indices: 
       edges: []
@@ -249,7 +381,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 8eacd817bffb76f4bb4cd4b4a350cdcf
+    spriteID: ba1766c287f6582449a0a17d90cae7f3
     internalID: 0
     vertices: []
     indices: 
@@ -259,11 +391,17 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      shared_image__1_-removebg-preview_0: -1945315435
-      shared_image__1_-removebg-preview_1: 1702112733
-      shared_image__1_-removebg-preview_2: 1014407300
-      shared_image__1_-removebg-preview_3: 716938296
-      shared_image__1_-removebg-preview_4: 1032433136
+      Ingredientes 7_0: 1950411454
+      Ingredientes 7_1: 219668884
+      Ingredientes 7_10: 1565758938
+      Ingredientes 7_2: -1825548996
+      Ingredientes 7_3: 2027745142
+      Ingredientes 7_4: -1807316145
+      Ingredientes 7_5: -2077291589
+      Ingredientes 7_6: -126970096
+      Ingredientes 7_7: 527202381
+      Ingredientes 7_8: 1322733757
+      Ingredientes 7_9: -500639792
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

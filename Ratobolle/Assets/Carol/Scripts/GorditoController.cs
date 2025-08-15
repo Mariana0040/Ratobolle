@@ -33,6 +33,7 @@ public class FakeRollCapsuleController : MonoBehaviour
     [Tooltip("Tag do objeto Trigger da plataforma que faz o jogador 'grudar' (StickZone).")]
     [SerializeField] private string platformStickTag = "PlatformStickZone"; // Tag da StickZone
 
+
     // Componentes e Estado Interno
     private Rigidbody rb;
     private CapsuleCollider capsuleCollider;
@@ -254,6 +255,60 @@ public class FakeRollCapsuleController : MonoBehaviour
             visualMeshTransform.Rotate(Vector3.right, rollAngleDelta, Space.Self);
         }
     }
+
+    public void HandleLaserHit(Transform specificRespawnPoint, float penalty)
+    {
+        Debug.Log($"Jogador '{gameObject.name}' atingido por laser! Indo para respawn: {specificRespawnPoint.name}. Penalidade de tempo: {penalty}s.");
+
+        // 1. Aplicar Penalidade de Tempo
+        //    Você precisará integrar isso com seu sistema de gerenciamento de tempo.
+        //    Exemplo:
+        //    if (timerManager != null) {
+        //        timerManager.ReduceTime(penalty);
+        //    } else {
+        //        Debug.LogWarning("TimerManager não encontrado para aplicar penalidade de tempo.");
+        //    }
+        //    Ou se o tempo for uma variável neste script:
+        //    currentTime -= penalty;
+
+        // 2. Mover para o Ponto de Respawn Específico
+        if (specificRespawnPoint != null)
+        {
+            if (rb != null)
+            {
+                rb.position = specificRespawnPoint.position;
+                rb.linearVelocity = Vector3.zero;
+                rb.angularVelocity = Vector3.zero;
+                // Opcional: resetar rotação para a do ponto de respawn
+                // rb.rotation = specificRespawnPoint.rotation;
+            }
+            else
+            {
+                transform.position = specificRespawnPoint.position;
+                // transform.rotation = specificRespawnPoint.rotation;
+            }
+            Debug.Log($"Jogador '{gameObject.name}' movido para {specificRespawnPoint.name}.");
+        }
+        else
+        {
+            Debug.LogError("Ponto de respawn específico fornecido pelo laser é nulo!", this);
+            // Fallback: usar o respawnPoint geral do jogador, se existir
+            // RespawnPlayer(); // Se você tiver uma função RespawnPlayer() genérica
+        }
+
+        // 3. Opcional: Parar qualquer movimento atual, resetar estado de pulo, etc.
+        isGrounded = false; // Para forçar uma nova checagem de chão
+        jumpsRemaining = 0; // Para não poder pular imediatamente após o respawn (ou resetar para maxJumps se preferir)
+                            // inputForward = 0f; // Zera inputs para evitar movimento fantasma
+                            // inputTurn = 0f;
+                            // jumpInputFlag = false;
+
+        // Opcional: Tocar um som de "hit" ou efeito visual no jogador
+    }
+
+    // Sua função RespawnPlayer() existente (para a ResetZone) pode permanecer,
+    // ou você pode unificá-las se a lógica for muito similar.
+
 
 #if UNITY_EDITOR
     void OnDrawGizmosSelected()
