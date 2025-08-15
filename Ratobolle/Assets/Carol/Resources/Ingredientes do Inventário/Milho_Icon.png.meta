@@ -1,12 +1,12 @@
 fileFormatVersion: 2
-guid: 8c0680e661f95e44dabc5ae001775031
+guid: 2f7be3bf45d3b5145a96d26cff8d8059
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
     mipMapMode: 0
-    enableMipMap: 0
+    enableMipMap: 1
     sRGBTexture: 1
     linearTexture: 0
     fadeOut: 0
@@ -37,13 +37,13 @@ TextureImporter:
     filterMode: 1
     aniso: 1
     mipBias: 0
-    wrapU: 1
-    wrapV: 1
+    wrapU: 0
+    wrapV: 0
     wrapW: 0
-  nPOTScale: 0
+  nPOTScale: 1
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 0
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -52,9 +52,9 @@ TextureImporter:
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
-  alphaIsTransparency: 1
+  alphaIsTransparency: 0
   spriteTessellationDetail: -1
-  textureType: 8
+  textureType: 0
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -134,122 +134,12 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_0
-      rect:
-        serializedVersion: 2
-        x: 147
-        y: 71
-        width: 375
-        height: 160
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 827e57585dd5c544a97ba04f2d871c37
-      internalID: -1945315435
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_1
-      rect:
-        serializedVersion: 2
-        x: 395
-        y: 73
-        width: 127
-        height: 156
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 1eaeaf53a6066d0468df2875bcf02c08
-      internalID: 1702112733
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_2
-      rect:
-        serializedVersion: 2
-        x: 522
-        y: 71
-        width: 128
-        height: 162
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6aab41851888ac14182636dfe3bcf749
-      internalID: 1014407300
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_3
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 59
-        width: 144
-        height: 260
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 4f7d02a08f7c84647bcef0ad7243192c
-      internalID: 716938296
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_4
-      rect:
-        serializedVersion: 2
-        x: 0
-        y: 67
-        width: 506
-        height: 257
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3d67bfcad3e4c4a4689b8d6f4cca2afe
-      internalID: 1032433136
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
+    sprites: []
     outline: []
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 8eacd817bffb76f4bb4cd4b4a350cdcf
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -258,12 +148,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      shared_image__1_-removebg-preview_0: -1945315435
-      shared_image__1_-removebg-preview_1: 1702112733
-      shared_image__1_-removebg-preview_2: 1014407300
-      shared_image__1_-removebg-preview_3: 716938296
-      shared_image__1_-removebg-preview_4: 1032433136
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

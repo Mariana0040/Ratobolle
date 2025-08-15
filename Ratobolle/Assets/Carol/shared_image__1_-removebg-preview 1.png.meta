@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 8c0680e661f95e44dabc5ae001775031
+guid: 16ae2c45c95c782449cbcaafd4eafa8d
 TextureImporter:
   internalIDToNameTable: []
   externalObjects: {}
@@ -158,57 +158,13 @@ TextureImporter:
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_1
-      rect:
-        serializedVersion: 2
-        x: 395
-        y: 73
-        width: 127
-        height: 156
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 1eaeaf53a6066d0468df2875bcf02c08
-      internalID: 1702112733
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_2
-      rect:
-        serializedVersion: 2
-        x: 522
-        y: 71
-        width: 128
-        height: 162
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 6aab41851888ac14182636dfe3bcf749
-      internalID: 1014407300
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_3
+      name: shared_image__1_-removebg-preview 1_0
       rect:
         serializedVersion: 2
         x: 0
-        y: 59
-        width: 144
-        height: 260
+        y: 64
+        width: 657
+        height: 240
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -217,20 +173,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 4f7d02a08f7c84647bcef0ad7243192c
-      internalID: 716938296
+      spriteID: 9e52351856173df42985b424cd5c7683
+      internalID: 1797357222
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: shared_image__1_-removebg-preview_4
+      name: shared_image__1_-removebg-preview 1_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 67
-        width: 506
-        height: 257
+        x: 13
+        y: 131
+        width: 141
+        height: 189
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -239,8 +195,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 3d67bfcad3e4c4a4689b8d6f4cca2afe
-      internalID: 1032433136
+      spriteID: 79360c156fb4ac348a390ed111651742
+      internalID: -1881936052
       vertices: []
       indices: 
       edges: []
@@ -259,11 +215,10 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
+      shared_image__1_-removebg-preview 1_0: 1797357222
+      shared_image__1_-removebg-preview 1_1: -1881936052
       shared_image__1_-removebg-preview_0: -1945315435
       shared_image__1_-removebg-preview_1: 1702112733
-      shared_image__1_-removebg-preview_2: 1014407300
-      shared_image__1_-removebg-preview_3: 716938296
-      shared_image__1_-removebg-preview_4: 1032433136
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

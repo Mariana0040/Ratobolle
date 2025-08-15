@@ -1,6 +1,13 @@
 // Dentro do seu script CollectibleItem.cs
 using UnityEngine;
 
+[CreateAssetMenu(fileName = "NewItemData", menuName = "Inventory/Item Data")]
+public class CollectibleItemData : ScriptableObject
+{
+    public string itemName = "Novo Item";
+    public Sprite icon; // Ícone 2D para a UI
+    // Outras propriedades: descrição, tipo, etc.
+}
 public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da classe é este
 {
     [Header("Item Info")]
@@ -62,3 +69,4 @@ public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da clas
         Debug.Log($"{itemName} foi sinalizado como coletado (lógica de destruição no PlayerInteraction).");
     }
 }
+    
