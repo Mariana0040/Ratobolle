@@ -5933,6 +5933,8 @@ GameObject:
   - component: {fileID: 173144784}
   - component: {fileID: 173144783}
   - component: {fileID: 173144782}
+  - component: {fileID: 173144786}
+  - component: {fileID: 173144785}
   m_Layer: 5
   m_Name: Canvasinterface
   m_TagString: Untagged
@@ -6026,6 +6028,33 @@ Canvas:
   m_SortingLayerID: 0
   m_SortingOrder: 200
   m_TargetDisplay: 0
+--- !u!114 &173144785
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173144780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82bd5151ac787454090ffbcbeb7309bd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  recipeBookPanel: {fileID: 0}
+--- !u!114 &173144786
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 173144780}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d859445f4601e2c448f4a2f134715937, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainMenuSceneName: MainMenu
+  pauseIndicatorPanel: {fileID: 1666551374}
 --- !u!1001 &174716385
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -27154,6 +27183,55 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 4ea94d1cbf62f5142b70b66a367685e3, type: 3}
   m_PrefabInstance: {fileID: 118161841}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &753376180
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 753376182}
+  - component: {fileID: 753376181}
+  m_Layer: 0
+  m_Name: PauseController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &753376181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 753376180}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66c9376970c6a8641b18f0d054fe2952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pauseMenuPanel: {fileID: 1666551374}
+  musicVolumeSlider: {fileID: 1946652240}
+  sfxVolumeSlider: {fileID: 1791644441}
+  fullscreenToggle: {fileID: 2015544925}
+  resolutionDropdown: {fileID: 125172111}
+--- !u!4 &753376182
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 753376180}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 129.87323, y: 75.431786, z: -76.97279}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &753952064
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -76472,9 +76550,9 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 8300000, guid: b50ed98959fdcc54284a973cf82121ed, type: 3}
         m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: PlayMusic
+        m_MethodName: 
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 8300000, guid: b50ed98959fdcc54284a973cf82121ed, type: 3}
@@ -86560,3 +86638,4 @@ SceneRoots:
   - {fileID: 286711431}
   - {fileID: 2070926052}
   - {fileID: 1749993350}
+  - {fileID: 753376182}
