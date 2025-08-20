@@ -61,7 +61,6 @@ public class FakeRollCapsuleController : MonoBehaviour
         capsuleCollider = GetComponent<CapsuleCollider>();
         if (visualMeshTransform == null) { Debug.LogError("Visual Mesh Transform não definido!", this); enabled = false; return; }
         if (groundLayerMask.value == 0) { Debug.LogWarning("Ground Layer Mask não definida."); }
-        if (movingPlatformSurfaceLayer.value == 0) { Debug.LogWarning("Moving Platform Surface Layer não definida."); }
         jumpsRemaining = maxJumps;
     }
 
