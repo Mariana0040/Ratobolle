@@ -6,6 +6,7 @@ TagManager:
   tags:
   - PlataformStickZone
   - PlatformStickZone
+  - Enemy
   layers:
   - Default
   - TransparentFX

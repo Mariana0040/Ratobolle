@@ -16,6 +16,9 @@ public class ClienteAI : MonoBehaviour
     [Tooltip("Arraste para cá TODAS as cadeiras onde o cliente pode sentar.")]
     public List<Transform> cadeirasDisponiveis;
 
+    // Precisamos guardar a referência da cadeira que ele escolheu
+    private Transform cadeiraAlvoTransform;
+
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
@@ -45,17 +48,15 @@ public class ClienteAI : MonoBehaviour
     {
         estadoAtual = EstadoCliente.IndoParaCadeira;
 
-        // Verifica se existe alguma cadeira na lista
         if (cadeirasDisponiveis.Count > 0)
         {
-            // Escolhe um número aleatório entre 0 e o total de cadeiras
             int indiceAleatorio = Random.Range(0, cadeirasDisponiveis.Count);
 
-            // Pega a cadeira correspondente a esse número
-            Transform cadeiraAlvo = cadeirasDisponiveis[indiceAleatorio];
+            // --- MUDANÇA: Guardamos a cadeira escolhida ---
+            cadeiraAlvoTransform = cadeirasDisponiveis[indiceAleatorio];
 
             // Manda o cliente ir até a posição da cadeira
-            agente.SetDestination(cadeiraAlvo.position);
+            agente.SetDestination(cadeiraAlvoTransform.position);
         }
         else
         {
@@ -68,8 +69,18 @@ public class ClienteAI : MonoBehaviour
         estadoAtual = EstadoCliente.Sentado;
         agente.isStopped = true; // Para de se mover
 
-        // Dispara a animação de sentar
-        animator.SetTrigger("sentar");
+        // --- CÓDIGO NOVO: AJUSTE DE POSIÇÃO E ROTAÇÃO ---
+
+        // 1. Teletransporta o cliente para a posição exata da cadeira.
+        // Isso evita que ele pare um pouco antes ou um pouco depois.
+        transform.position = cadeiraAlvoTransform.position;
+
+        // 2. Iguala a rotação do cliente à rotação da cadeira.
+        // O cliente vai instantaneamente virar para a mesma direção que a cadeira.
+        transform.rotation = cadeiraAlvoTransform.rotation;
+
+        // O resto da lógica de animação continua a mesma
+        // A função AtualizarAnimacao() vai detectar que ele parou e vai setar "andando" para false.
     }
 
     void AtualizarAnimacao()
