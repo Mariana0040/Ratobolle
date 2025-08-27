@@ -1,39 +1,32 @@
-// Importações necessárias para UI da Unity e TextMesh Pro
+// Importações necessárias para UI, TextMesh Pro e GERENCIAMENTO DE CENAS
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.SceneManagement; // ESSENCIAL PARA REINICIAR A CENA
 
 public class TemporizadorDeQueijo : MonoBehaviour
 {
     [Header("Configurações do Temporizador")]
-    [Tooltip("Tempo total da contagem regressiva em MINUTOS.")]
-    public float tempoEmMinutos = 1.5f; // Agora você pode usar valores como 1.5 para 1 minuto e 30 segundos
+    public float tempoEmMinutos = 1.5f;
 
     [Header("Referências de Componentes")]
-    [Tooltip("Arraste o componente de Imagem do queijo aqui.")]
     public Image imagemQueijo;
-
-    [Tooltip("Arraste o componente TextMeshPro (UI) da contagem regressiva aqui.")]
     public TextMeshProUGUI textoContagem;
 
     private float tempoRestanteEmSegundos;
     private float tempoTotalEmSegundos;
+    private bool tempoAcabou = false; // Chave para garantir que a lógica de "perder" rode apenas uma vez
 
     void Start()
     {
-        // Converte o tempo de minutos para segundos para o cálculo interno
         tempoTotalEmSegundos = tempoEmMinutos * 60f;
         tempoRestanteEmSegundos = tempoTotalEmSegundos;
 
-        // Validação inicial da imagem
         if (imagemQueijo.type != Image.Type.Filled)
         {
-            Debug.LogWarning("O tipo da imagem do queijo não está como 'Filled'. Alterando automaticamente.");
             imagemQueijo.type = Image.Type.Filled;
             imagemQueijo.fillMethod = Image.FillMethod.Radial360;
         }
-
-        // Garante que o queijo comece cheio
         imagemQueijo.fillAmount = 1f;
     }
 
@@ -41,42 +34,37 @@ public class TemporizadorDeQueijo : MonoBehaviour
     {
         if (tempoRestanteEmSegundos > 0)
         {
-            // Diminui o tempo restante (cálculo em segundos)
             tempoRestanteEmSegundos -= Time.deltaTime;
-
-            // Atualiza o preenchimento visual do queijo
             imagemQueijo.fillAmount = tempoRestanteEmSegundos / tempoTotalEmSegundos;
-
-            // Atualiza o texto da contagem regressiva no formato MM:SS
             AtualizarTextoDoTemporizador(tempoRestanteEmSegundos);
         }
-        else
+        else if (!tempoAcabou) // Só entra aqui na primeira vez que o tempo acaba
         {
-            // O tempo acabou
+            // O tempo acabou!
+            tempoAcabou = true; // Ativa a chave para não entrar aqui de novo
             tempoRestanteEmSegundos = 0;
             imagemQueijo.fillAmount = 0;
-            textoContagem.text = "00:00"; // Exibe o final de forma consistente
+            textoContagem.text = "00:00";
 
-            // Opcional: Desativa este script para otimização
-            this.enabled = false;
+            // --- NOVO: LÓGICA DE FIM DE JOGO ---
+            FimDeJogo();
         }
     }
 
-    // Função para formatar o tempo e atualizar o texto
     void AtualizarTextoDoTemporizador(float tempoParaExibir)
     {
-        // Garante que não exiba tempo negativo
-        if (tempoParaExibir < 0)
-        {
-            tempoParaExibir = 0;
-        }
-
-        // Calcula minutos e segundos
+        if (tempoParaExibir < 0) tempoParaExibir = 0;
         float minutos = Mathf.FloorToInt(tempoParaExibir / 60);
         float segundos = Mathf.FloorToInt(tempoParaExibir % 60);
-
-        // Formata o texto para o formato MM:SS, com zeros à esquerda
-        // Ex: 1 minuto e 5 segundos será exibido como "01:05"
         textoContagem.text = string.Format("{0:00}:{1:00}", minutos, segundos);
+    }
+
+    // --- NOVA FUNÇÃO ---
+    void FimDeJogo()
+    {
+        Debug.Log("O tempo acabou! Você perdeu! Reiniciando a fase...");
+
+        // Recarrega a cena atual. O inventário será mantido pelo GerenciadorDeInventario.
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }

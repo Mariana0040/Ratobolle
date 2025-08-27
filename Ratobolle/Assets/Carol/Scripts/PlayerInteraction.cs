@@ -47,7 +47,6 @@ public class PlayerInteraction : MonoBehaviour
             }
         }
     }
-
     void Update()
     {
         DetectObjectsInRange();

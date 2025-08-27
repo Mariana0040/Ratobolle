@@ -45,6 +45,12 @@ public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da clas
         Collider col = GetComponent<Collider>();
         if (col == null) { Debug.LogError($"Item '{gameObject.name}' não possui Collider!", this); }
     }
+    // Dentro do seu script de coleta...
+    public void ColetarIngrediente(string nomeDoItem)
+    {
+        // Acessa o PlayerInventoryManager da cena para adicionar o item (como já faz)
+         FindFirstObjectByType<PlayerInventoryManager>().AddIngredientToInventory(nomeDoItem);
+    }
 
     public void SetHighlight(bool highlight)
     {
@@ -68,5 +74,6 @@ public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da clas
         // Você pode tocar um som específico do item aqui ou instanciar um efeito
         Debug.Log($"{itemName} foi sinalizado como coletado (lógica de destruição no PlayerInteraction).");
     }
+
 }
     
