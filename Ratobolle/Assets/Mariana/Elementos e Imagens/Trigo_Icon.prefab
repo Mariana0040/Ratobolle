@@ -1,0 +1,132 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &513795479828802072
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -9.347929
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -5.3050137
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -21.575
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_Name
+      value: Trigo_Icon
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1933330526711237605}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7061503618298128857}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 2463330456008012732}
+  m_SourcePrefab: {fileID: 100100000, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+--- !u!1 &855745045014812489 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 3bd22d3cf944f774596777a2a07123bd, type: 3}
+  m_PrefabInstance: {fileID: 513795479828802072}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &1933330526711237605
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855745045014812489}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.30938148, y: 0.62425613, z: 0.28437424}
+  m_Center: {x: -0.011418343, y: 0.31212807, z: -0.0010890961}
+--- !u!114 &7061503618298128857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855745045014812489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5ae167680ca44e4baa718d294c9471f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemName: Trigo
+  quantity: 1
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!114 &2463330456008012732
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 855745045014812489}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 063652d990c388a47b991b876833f80e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientName: Trigo
+  quantity: 1
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}
