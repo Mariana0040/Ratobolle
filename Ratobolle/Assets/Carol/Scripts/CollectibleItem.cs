@@ -1,21 +1,22 @@
-// Dentro do seu script CollectibleItem.cs
 using UnityEngine;
 
+// O ScriptableObject permanece o mesmo
 [CreateAssetMenu(fileName = "NewItemData", menuName = "Inventory/Item Data")]
 public class CollectibleItemData : ScriptableObject
 {
     public string itemName = "Novo Item";
-    public Sprite icon; // Ícone 2D para a UI
-    // Outras propriedades: descrição, tipo, etc.
+    public Sprite icon;
 }
-public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da classe é este
+
+// A classe do item no mundo do jogo, agora com a função de highlight de volta
+public class CollectibleItem : MonoBehaviour
 {
     [Header("Item Info")]
     [Tooltip("O nome único deste item, usado pelo inventário.")]
-    public string itemName = "NomePadraoDoItem"; // Defina no Inspetor para cada item!
+    public string itemName = "NomePadraoDoItem";
 
     [Tooltip("Quantidade que este item representa ao ser coletado.")]
-    public int quantity = 1; // Defina no Inspetor se um item pode valer mais
+    public int quantity = 1;
 
     [Header("Highlight Visual")]
     public Color highlightColor = Color.green;
@@ -36,22 +37,10 @@ public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da clas
         {
             Debug.LogWarning($"Item colecionável '{gameObject.name}' não possui Renderer para highlight.", this);
         }
-
-        if (string.IsNullOrEmpty(itemName) || itemName == "NomePadraoDoItem")
-        {
-            Debug.LogError($"Item colecionável '{gameObject.name}' não tem um 'itemName' válido definido no Inspetor!", this);
-        }
-        // Validação do Collider (pode ser mantida ou ajustada)
-        Collider col = GetComponent<Collider>();
-        if (col == null) { Debug.LogError($"Item '{gameObject.name}' não possui Collider!", this); }
-    }
-    // Dentro do seu script de coleta...
-    public void ColetarIngrediente(string nomeDoItem)
-    {
-        // Acessa o PlayerInventoryManager da cena para adicionar o item (como já faz)
-         FindFirstObjectByType<PlayerInventoryManager>().AddIngredientToInventory(nomeDoItem);
     }
 
+    // --- A FUNÇÃO QUE ESTAVA FALTANDO ---
+    // PlayerInteraction precisa desta função para destacar o objeto.
     public void SetHighlight(bool highlight)
     {
         if (objectRenderer == null || isHighlighted == highlight) return;
@@ -67,13 +56,20 @@ public class CollectibleItem : MonoBehaviour // Certifique-se que o nome da clas
         }
     }
 
-    // Se você tiver uma função Collect na moeda/item, ela pode ser simplificada
-    // já que a lógica principal de adicionar ao inventário e destruir está no PlayerInteraction
-    public void OnCollected()
+    // Esta função conversa com o novo inventário
+    // PlayerInteraction NÃO chama mais esta função diretamente, mas é bom mantê-la
+    // para outros possíveis usos.
+    public void Coletar()
     {
-        // Você pode tocar um som específico do item aqui ou instanciar um efeito
-        Debug.Log($"{itemName} foi sinalizado como coletado (lógica de destruição no PlayerInteraction).");
-    }
+        SimplifiedPlayerInventory inventory = FindFirstObjectByType<SimplifiedPlayerInventory>();
 
+        if (inventory != null)
+        {
+            inventory.AddItem(this.itemName, this.quantity);
+        }
+        else
+        {
+            Debug.LogError("Nenhum 'SimplifiedPlayerInventory' encontrado na cena!");
+        }
+    }
 }
-    

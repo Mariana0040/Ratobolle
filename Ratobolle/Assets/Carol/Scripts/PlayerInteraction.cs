@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections.Generic;
-// using System.Linq; // Não estamos usando Linq explicitamente aqui, pode remover se quiser
 
 public class PlayerInteraction : MonoBehaviour
 {
@@ -14,7 +13,7 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField] private LayerMask interactableLayer;
 
     [Header("Coleta (Tecla C)")]
-    [SerializeField] private LayerMask collectibleLayer; // Certifique-se que seus CollectibleItem estão nesta layer
+    [SerializeField] private LayerMask collectibleLayer;
 
     [Header("Feedback")]
     [SerializeField] private GameObject interactionPromptUI;
@@ -22,12 +21,10 @@ public class PlayerInteraction : MonoBehaviour
     private AudioSource audioSource;
 
     [Header("Inventário")]
-    [Tooltip("Referência ao script PlayerInventoryManager no jogador.")]
-    [SerializeField] private PlayerInventoryManager playerInventoryManager;
+    [Tooltip("Referência ao script de inventário no jogador.")]
+    [SerializeField] private SimplifiedPlayerInventory playerInventory;
 
-    // Rastrear o objeto atualmente em foco
     private InteractableObject currentFocusedInteractable = null;
-    // ***** ESTA LINHA DEVE USAR CollectibleItem *****
     private CollectibleItem currentFocusedCollectible = null;
 
     void Awake()
@@ -38,12 +35,12 @@ public class PlayerInteraction : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null && collectSound != null) audioSource = gameObject.AddComponent<AudioSource>();
 
-        if (playerInventoryManager == null)
+        if (playerInventory == null)
         {
-            playerInventoryManager = GetComponent<PlayerInventoryManager>();
-            if (playerInventoryManager == null)
+            playerInventory = GetComponent<SimplifiedPlayerInventory>();
+            if (playerInventory == null)
             {
-                Debug.LogError("PlayerInventoryManager não definido ou não encontrado! Coleta não funcionará.", this);
+                Debug.LogError("SimplifiedPlayerInventory não definido ou não encontrado! Coleta não funcionará.", this);
             }
         }
     }
@@ -64,7 +61,6 @@ public class PlayerInteraction : MonoBehaviour
 
     void DetectObjectsInRange()
     {
-        // Interativos
         InteractableObject closestInteractable = FindClosestObject<InteractableObject>(interactableLayer);
         if (closestInteractable != currentFocusedInteractable)
         {
@@ -74,15 +70,11 @@ public class PlayerInteraction : MonoBehaviour
         }
         if (interactionPromptUI != null) interactionPromptUI.SetActive(currentFocusedInteractable != null);
 
-        // Colecionáveis
-        // ***** ESTA LINHA DEVE USAR CollectibleItem *****
         CollectibleItem closestCollectible = FindClosestObject<CollectibleItem>(collectibleLayer);
 
         if (closestCollectible != currentFocusedCollectible)
         {
-            // Chama SetHighlight de CollectibleItem
             if (currentFocusedCollectible != null) currentFocusedCollectible.SetHighlight(false);
-            // Chama SetHighlight de CollectibleItem
             if (closestCollectible != null) closestCollectible.SetHighlight(true);
             currentFocusedCollectible = closestCollectible;
         }
@@ -123,21 +115,19 @@ public class PlayerInteraction : MonoBehaviour
 
     void TryCollectWithKey()
     {
-        // currentFocusedCollectible agora é do tipo CollectibleItem
         if (currentFocusedCollectible != null)
         {
             float distanceToCollectible = Vector3.Distance(detectionOrigin.position, currentFocusedCollectible.transform.position);
             if (distanceToCollectible <= detectionRadius)
             {
-                if (playerInventoryManager != null)
+                if (playerInventory != null)
                 {
-                    // Acessa as propriedades públicas 'itemName' e 'quantity' da classe CollectibleItem
-                    playerInventoryManager.AddIngredientToInventory(currentFocusedCollectible.itemName, currentFocusedCollectible.quantity);
+                    playerInventory.AddItem(currentFocusedCollectible.itemName, currentFocusedCollectible.quantity);
                     Debug.Log($"Item '{currentFocusedCollectible.itemName}' adicionado ao inventário.");
                 }
                 else
                 {
-                    Debug.LogError("PlayerInventoryManager não está referenciado.");
+                    Debug.LogError("SimplifiedPlayerInventory não está referenciado.");
                 }
 
                 if (audioSource != null && collectSound != null)
@@ -145,10 +135,7 @@ public class PlayerInteraction : MonoBehaviour
                     audioSource.PlayOneShot(collectSound);
                 }
 
-                currentFocusedCollectible.SetHighlight(false); // Chama SetHighlight de CollectibleItem
-
-                // Opcional: Chamar uma função no item antes de destruir
-                // currentFocusedCollectible.OnCollected(); 
+                currentFocusedCollectible.SetHighlight(false);
 
                 Destroy(currentFocusedCollectible.gameObject);
                 currentFocusedCollectible = null;
@@ -168,8 +155,7 @@ public class PlayerInteraction : MonoBehaviour
                 Gizmos.color = Color.yellow;
                 Gizmos.DrawLine(detectionOrigin.position, currentFocusedInteractable.transform.position);
             }
-            // ***** ESTA LINHA DEVE USAR CollectibleItem (se o tipo da variável mudou) *****
-            if (currentFocusedCollectible != null) // currentFocusedCollectible é do tipo CollectibleItem
+            if (currentFocusedCollectible != null)
             {
                 Gizmos.color = Color.cyan;
                 Gizmos.DrawLine(detectionOrigin.position, currentFocusedCollectible.transform.position);
