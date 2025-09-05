@@ -81,6 +81,8 @@ public class InteractableObject : MonoBehaviour
         switch (type)
         {
             case InteractableType.Refrigerator:
+                HandleDoorTween();
+                break;
             case InteractableType.Door:
                 HandleDoorTween();
                 break;

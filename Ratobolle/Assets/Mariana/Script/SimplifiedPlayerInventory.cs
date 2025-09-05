@@ -5,25 +5,17 @@ using TMPro;
 using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
+using UnityEngine.SceneManagement;
 
-// --- Estruturas de Dados Simplificadas ---
-
-// Representa um item que o jogador possui. Contém os dados e a quantidade.
+// As definições de classe permanecem as mesmas
 [System.Serializable]
 public class InventoryItem
 {
     public CollectibleItemData itemData;
     public int quantity;
-
-    // Construtor para facilitar a criação de novos itens
-    public InventoryItem(CollectibleItemData data, int amount)
-    {
-        itemData = data;
-        quantity = amount;
-    }
+    public InventoryItem(CollectibleItemData data, int amount) { itemData = data; quantity = amount; }
 }
 
-// Apenas para organizar as referências da UI no Inspector. Não contém dados do jogo.
 [System.Serializable]
 public class UI_InventorySlot
 {
@@ -34,46 +26,108 @@ public class UI_InventorySlot
 
 public class SimplifiedPlayerInventory : MonoBehaviour
 {
+    public static SimplifiedPlayerInventory Instance { get; private set; }
+
     [Header("Banco de Dados de Itens")]
-    [Tooltip("Arraste TODOS os seus ScriptableObjects de 'CollectibleItemData' para esta lista.")]
     public List<CollectibleItemData> itemDatabase;
 
-    [Header("Configuração da UI")]
-    [Tooltip("Arraste os GameObjects dos seus slots de UI para esta lista, em ordem.")]
-    public List<UI_InventorySlot> uiSlots; // Lista com as referências da UI
-
-    [Header("Gaveta do Inventário (Abre com Tecla I)")]
+    [Header("Referências da UI (Encontradas Automaticamente)")]
+    public List<UI_InventorySlot> uiSlots;
     public GameObject drawerPanelObject;
     [SerializeField] private RectTransform drawerRectTransform;
+
+    [Header("Configurações de Animação")]
     [SerializeField] private float drawerHiddenXPosition = -500f;
     [SerializeField] private float drawerVisibleXPosition = 0f;
     [SerializeField] private float drawerAnimationDuration = 0.3f;
     [SerializeField] private Ease drawerEaseType = Ease.OutQuad;
 
-    // A lista principal que guarda os itens do jogador. Esta é a fonte da verdade.
     private List<InventoryItem> playerItems = new List<InventoryItem>();
     private bool isDrawerOpen = false;
 
-    #region Funções da Engine (Start, Update)
+    #region Singleton e Gerenciamento de Cena
 
     void Awake()
     {
-        if (drawerPanelObject == null) { Debug.LogError("O painel da gaveta (Drawer Panel) não foi definido!", this); enabled = false; return; }
-        if (drawerRectTransform == null) drawerRectTransform = drawerPanelObject.GetComponent<RectTransform>();
-        if (drawerRectTransform == null) { Debug.LogError("RectTransform da gaveta não encontrado!", this); enabled = false; return; }
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
-    void Start()
+    void OnEnable()
     {
-        // Garante que o inventário comece fechado e com a UI limpa
-        drawerRectTransform.anchoredPosition = new Vector2(drawerHiddenXPosition, drawerRectTransform.anchoredPosition.y);
-        drawerPanelObject.SetActive(false);
-        isDrawerOpen = false;
-        UpdateInventoryUI(); // Atualiza a UI para garantir que todos os slots comecem vazios
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
+
+    void OnDisable()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+    }
+
+    // --- LÓGICA DE RECONEXÃO DA UI ATUALIZADA E ROBUSTA ---
+    void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        Debug.Log("Nova cena carregada. Procurando pela UI do inventário...");
+
+        if (drawerPanelObject != null)
+        {
+            drawerRectTransform = drawerPanelObject.GetComponent<RectTransform>();
+
+            uiSlots.Clear();
+
+            // 1. Encontra todos os componentes "etiqueta" que estão nos filhos do painel
+            UI_Slot_Reference[] slotReferences = drawerPanelObject.GetComponentsInChildren<UI_Slot_Reference>(true);
+
+            // 2. Para cada etiqueta encontrada, pega os componentes de Imagem e Texto do mesmo objeto
+            foreach (UI_Slot_Reference slotRef in slotReferences)
+            {
+                Image icon = slotRef.GetComponentInChildren<Image>(true);
+                TextMeshProUGUI text = slotRef.GetComponentInChildren<TextMeshProUGUI>(true);
+
+                if (icon != null && text != null)
+                {
+                    UI_InventorySlot newSlot = new UI_InventorySlot { iconImage = icon, quantityText = text };
+                    uiSlots.Add(newSlot);
+                }
+            }
+
+            Debug.Log($"UI do inventário encontrada! {uiSlots.Count} slots foram reconectados.");
+
+            // 3. Agora que temos a lista de slots correta e completa, atualizamos a UI!
+            UpdateInventoryUI();
+
+            drawerRectTransform.anchoredPosition = new Vector2(drawerHiddenXPosition, drawerRectTransform.anchoredPosition.y);
+            drawerPanelObject.SetActive(false);
+            isDrawerOpen = false;
+        }
+        else
+        {
+            Debug.LogWarning("Não foi possível encontrar a UI do inventário na nova cena. Verifique se o painel principal tem a Tag 'InventoryUI'.");
+        }
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.P))
+        {
+            Debug.Log("--- CHECAGEM DE STATUS DO INVENTÁRIO ---");
+
+            if (drawerPanelObject == null)
+            {
+                Debug.LogError("ERRO: A referência 'drawerPanelObject' ESTÁ NULA! Verifique a Tag 'InventoryUI'.");
+            }
+            else
+            {
+                Debug.Log("SUCESSO: A referência 'drawerPanelObject' está conectada corretamente.");
+            }
+
+            Debug.Log("------------------------------------");
+        }
+
         if (Input.GetKeyDown(KeyCode.I))
         {
             ToggleDrawer();
@@ -82,80 +136,43 @@ public class SimplifiedPlayerInventory : MonoBehaviour
 
     #endregion
 
-    #region Lógica Principal do Inventário (Adicionar, Remover, Usar)
-
-    /// <summary>
-    /// Adiciona um item ao inventário. Empilha se o item já existir, ou adiciona a um novo slot.
-    /// </summary>
-    /// <param name="itemName">O nome do item a ser adicionado (deve corresponder ao itemName no ScriptableObject).</param>
-    /// <param name="quantity">A quantidade a ser adicionada.</param>
+    // O resto do seu código (AddItem, LoseHalfOfAllItems, etc.) não precisa de NENHUMA alteração.
+    #region Lógica Principal do Inventário
     public void AddItem(string itemName, int quantity = 1)
     {
-        // 1. Encontrar os dados do item no banco de dados
         CollectibleItemData data = GetItemData(itemName);
-        if (data == null)
-        {
-            Debug.LogWarning($"Item '{itemName}' não encontrado no banco de dados. Verifique se o nome está correto e se foi adicionado à lista.");
-            return;
-        }
-
-        // 2. Verificar se o item já existe no inventário (para empilhar)
+        if (data == null) return;
         InventoryItem existingItem = playerItems.FirstOrDefault(item => item.itemData.itemName == itemName);
-
         if (existingItem != null)
         {
-            // Se já existe, apenas aumenta a quantidade
             existingItem.quantity += quantity;
         }
         else
         {
-            // Se não existe, verifica se há espaço para um novo item
             if (playerItems.Count < uiSlots.Count)
             {
-                // Adiciona o novo item à lista
                 playerItems.Add(new InventoryItem(data, quantity));
             }
-            else
-            {
-                Debug.Log("Inventário cheio! Não é possível adicionar " + itemName);
-                // Opcional: Adicione um som ou feedback visual para o jogador aqui
-            }
         }
-
-        // 3. Atualizar a UI para refletir a mudança
         UpdateInventoryUI();
     }
-
-    /// <summary>
-    /// Remove uma certa quantidade de um item do inventário.
-    /// </summary>
-    /// <param name="itemName">O nome do item a ser removido.</param>
-    /// <param name="quantity">A quantidade a ser removida.</param>
     public bool RemoveItem(string itemName, int quantity = 1)
     {
         InventoryItem itemToRemove = playerItems.FirstOrDefault(item => item.itemData.itemName == itemName);
-
         if (itemToRemove != null)
         {
             itemToRemove.quantity -= quantity;
-
-            // Se a quantidade zerar ou ficar negativa, remove o item da lista
             if (itemToRemove.quantity <= 0)
             {
                 playerItems.Remove(itemToRemove);
             }
-
             UpdateInventoryUI();
-            return true; // Remoção bem-sucedida
+            return true;
         }
-
         Debug.LogWarning($"Tentativa de remover o item '{itemName}', mas ele não foi encontrado no inventário.");
-        return false; // Item não encontrado
+        return false;
     }
 
-    /// <summary>
-    /// Verifica se o jogador tem uma quantidade suficiente de um item e, se tiver, usa-o.
-    /// </summary>
     public bool UseItem(string itemName, int quantityNeeded = 1)
     {
         InventoryItem item = playerItems.FirstOrDefault(i => i.itemData.itemName == itemName);
@@ -163,33 +180,24 @@ public class SimplifiedPlayerInventory : MonoBehaviour
         {
             return RemoveItem(itemName, quantityNeeded);
         }
-        return false; // Não tem o item ou a quantidade necessária
+        return false;
     }
 
-
-    /// <summary>
-    /// Simplesmente verifica a quantidade de um item que o jogador possui.
-    /// </summary>
     public int GetItemCount(string itemName)
     {
         InventoryItem item = playerItems.FirstOrDefault(i => i.itemData.itemName == itemName);
-        return item?.quantity ?? 0; // Retorna a quantidade se o item existir, senão retorna 0
+        return item?.quantity ?? 0;
     }
-
     #endregion
 
     #region Atualização da UI e Funções Auxiliares
-
-    /// <summary>
-    /// A função central que redesenha toda a UI do inventário com base na lista 'playerItems'.
-    /// </summary>
     private void UpdateInventoryUI()
     {
+        if (uiSlots == null || uiSlots.Count == 0) return;
         for (int i = 0; i < uiSlots.Count; i++)
         {
             if (i < playerItems.Count)
             {
-                // Se existe um item para este slot, exibe suas informações
                 uiSlots[i].iconImage.sprite = playerItems[i].itemData.icon;
                 uiSlots[i].quantityText.text = playerItems[i].quantity.ToString();
                 uiSlots[i].iconImage.enabled = true;
@@ -197,7 +205,6 @@ public class SimplifiedPlayerInventory : MonoBehaviour
             }
             else
             {
-                // Se não há item para este slot, limpa e desativa
                 uiSlots[i].iconImage.sprite = null;
                 uiSlots[i].quantityText.text = "";
                 uiSlots[i].iconImage.enabled = false;
@@ -206,29 +213,23 @@ public class SimplifiedPlayerInventory : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Encontra e retorna os dados de um item (ScriptableObject) a partir de seu nome.
-    /// </summary>
     private CollectibleItemData GetItemData(string itemName)
     {
         return itemDatabase.FirstOrDefault(item => item.itemName == itemName);
     }
-
     #endregion
 
-    #region Animação da Gaveta (DOTween) - Sem alterações
-
+    #region Animação da Gaveta e Lógica de Jogo
     public void ToggleDrawer()
     {
+        if (drawerPanelObject == null) return;
         isDrawerOpen = !isDrawerOpen;
         Vector2 targetPosition = new Vector2(isDrawerOpen ? drawerVisibleXPosition : drawerHiddenXPosition, drawerRectTransform.anchoredPosition.y);
-
         if (isDrawerOpen)
         {
-            UpdateInventoryUI(); // Garante que a UI está atualizada ao abrir
+            UpdateInventoryUI();
             drawerPanelObject.SetActive(true);
         }
-
         drawerRectTransform.DOAnchorPos(targetPosition, drawerAnimationDuration)
             .SetEase(drawerEaseType)
             .OnComplete(() =>
@@ -240,5 +241,29 @@ public class SimplifiedPlayerInventory : MonoBehaviour
             });
     }
 
+
+    public void LoseHalfOfAllItems()
+    {
+        Debug.Log("<color=orange>TEMPO ESGOTADO! Reduzindo ingredientes.</color>");
+        for (int i = playerItems.Count - 1; i >= 0; i--)
+        {
+            InventoryItem item = playerItems[i];
+
+            // Nova lógica: usa Mathf.CeilToInt para arredondar para CIMA.
+            // Ex: 5 / 2.0f = 2.5f -> CeilToInt = 3 itens perdidos.
+            // Ex: 1 / 2.0f = 0.5f -> CeilToInt = 1 item perdido.
+            int quantityToLose = Mathf.CeilToInt(item.quantity / 2.0f);
+
+            item.quantity -= quantityToLose;
+        }
+        playerItems.RemoveAll(item => item.quantity <= 0);
+        UpdateInventoryUI();
+    }
+
+    public void ClearAllItems()
+    {
+        playerItems.Clear();
+        UpdateInventoryUI();
+    }
     #endregion
 }

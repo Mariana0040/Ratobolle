@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class TemporizadorDeQueijo : MonoBehaviour
 {
@@ -12,88 +12,138 @@ public class TemporizadorDeQueijo : MonoBehaviour
     public Image imagemQueijo;
     public TextMeshProUGUI textoContagem;
 
+    [Header("Referências da Cena")]
+    public Transform playerTransform;
+    public Transform respawnPoint;
+    public IngredientSpawner ingredientSpawner;
+    public TeleporterDoor portaDeInicio;
+
+    private SimplifiedPlayerInventory playerInventory;
     private float tempoRestanteEmSegundos;
     private float tempoTotalEmSegundos;
-    private bool tempoAcabou = false;
-
-    // --- NOVA TRAVA ---
     private bool cronometroRodando = false;
+    private static bool primeiroInicio = true;
+    private bool rodadaTerminou = false;
+
+    void Awake()
+    {
+        playerInventory = SimplifiedPlayerInventory.Instance;
+        if (playerInventory == null)
+        {
+            Debug.LogError("TEMPORIZADOR: Não foi possível encontrar a instância do SimplifiedPlayerInventory!", this);
+        }
+    }
 
     void Start()
     {
         tempoTotalEmSegundos = tempoEmMinutos * 60f;
-        tempoRestanteEmSegundos = tempoTotalEmSegundos;
 
-        // Prepara a UI, mas não inicia o cronômetro
-        if (imagemQueijo.type != Image.Type.Filled)
+        if (primeiroInicio)
         {
-            imagemQueijo.type = Image.Type.Filled;
-            imagemQueijo.fillMethod = Image.FillMethod.Radial360;
+            playerInventory.ClearAllItems();
+            primeiroInicio = false;
         }
-        imagemQueijo.fillAmount = 1f;
-        AtualizarTextoDoTemporizador(tempoTotalEmSegundos); // Mostra o tempo inicial
+        PrepararNovaRodada();
     }
 
+    // --- LÓGICA DO UPDATE SIMPLIFICADA E CORRIGIDA ---
     void Update()
     {
-        // --- CONDIÇÃO ADICIONADA ---
-        // Só executa a contagem se o cronômetro tiver sido iniciado
+        // Se o cronômetro não estiver rodando, não há nada a fazer.
         if (!cronometroRodando)
         {
-            return; // Sai do Update se a contagem não começou
+            return;
         }
 
+        // Se a contagem ainda está ativa...
         if (tempoRestanteEmSegundos > 0)
         {
             tempoRestanteEmSegundos -= Time.deltaTime;
-            imagemQueijo.fillAmount = tempoRestanteEmSegundos / tempoTotalEmSegundos;
-            AtualizarTextoDoTemporizador(tempoRestanteEmSegundos);
         }
-        else if (!tempoAcabou)
+        // Se o tempo acabou e a rodada ainda não foi marcada como "terminada"...
+        else if (!rodadaTerminou)
         {
-            tempoAcabou = true;
-            tempoRestanteEmSegundos = 0;
-            imagemQueijo.fillAmount = 0;
-            textoContagem.text = "00:00";
-            FimDeJogo();
+            // Aciona o processo de fim de rodada.
+            StartCoroutine(FimDeRodadaCoroutine());
         }
+
+        // A atualização visual do texto acontece em todos os frames em que o cronômetro está ativo.
+        AtualizarTextoDoTemporizador(tempoRestanteEmSegundos);
     }
 
-    // --- NOVA FUNÇÃO PÚBLICA ---
-    /// <summary>
-    /// Inicia a contagem regressiva do temporizador.
-    /// </summary>
+    private void PrepararNovaRodada()
+    {
+        Debug.Log("Preparando cenário para a próxima rodada... Aguardando jogador.");
+
+        // Garante que o cronômetro esteja parado enquanto preparamos
+        cronometroRodando = false;
+
+        ingredientSpawner.RespawnAllIngredients();
+        ResetarCronometroVisual();
+
+        if (portaDeInicio != null)
+        {
+            portaDeInicio.ResetForNewRound();
+        }
+
+        // Reseta a trava da rodada, permitindo que a próxima possa terminar
+        rodadaTerminou = false;
+    }
+
+    IEnumerator FimDeRodadaCoroutine()
+    {
+        // 1. Trava a rodada para que esta corrotina não seja chamada de novo
+        rodadaTerminou = true;
+        // 2. Para a contagem (embora o Update já faça isso, é uma segurança extra)
+        cronometroRodando = false;
+
+        Debug.Log("O tempo acabou! O jogador perdeu a rodada!");
+        playerInventory.LoseHalfOfAllItems();
+
+        if (playerTransform != null && respawnPoint != null)
+        {
+            playerTransform.position = respawnPoint.position;
+            playerTransform.rotation = respawnPoint.rotation;
+        }
+
+        yield return new WaitForSeconds(2f);
+
+        // 3. Prepara tudo para a próxima tentativa
+        PrepararNovaRodada();
+    }
+
     public void IniciarCronometro()
     {
-        if (cronometroRodando) return; // Não deixa iniciar duas vezes
+        // Só inicia se o cronômetro não estiver rodando E se a rodada não tiver terminado
+        if (cronometroRodando || rodadaTerminou) return;
 
-        Debug.Log("<color=green>A RUN COMEÇOU! O tempo está correndo!</color>");
+        Debug.Log("<color=green>PORTA ATRAVESSADA! O tempo está correndo!</color>");
         cronometroRodando = true;
+    }
+
+    // Renomeado para maior clareza, pois apenas reseta a parte visual
+    private void ResetarCronometroVisual()
+    {
+        tempoRestanteEmSegundos = tempoTotalEmSegundos;
+        AtualizarTextoDoTemporizador(tempoRestanteEmSegundos);
     }
 
     void AtualizarTextoDoTemporizador(float tempoParaExibir)
     {
         if (tempoParaExibir < 0) tempoParaExibir = 0;
+
+        imagemQueijo.fillAmount = tempoParaExibir / tempoTotalEmSegundos;
+
         float minutos = Mathf.FloorToInt(tempoParaExibir / 60);
         float segundos = Mathf.FloorToInt(tempoParaExibir % 60);
         textoContagem.text = string.Format("{0:00}:{1:00}", minutos, segundos);
     }
-    void FimDeJogo()
-    {
-        Debug.Log("O tempo acabou! Você perdeu! Reiniciando a fase...");
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-    }
 
     public void ReduzirTempo(float segundosAReduzir)
     {
-        if (!tempoAcabou && cronometroRodando)
+        if (cronometroRodando)
         {
-            Debug.Log($"<color=red>TEMPO REDUZIDO em {segundosAReduzir} segundos!</color>");
             tempoRestanteEmSegundos -= segundosAReduzir;
-            if (tempoRestanteEmSegundos < 0)
-            {
-                tempoRestanteEmSegundos = 0;
-            }
         }
     }
 }
