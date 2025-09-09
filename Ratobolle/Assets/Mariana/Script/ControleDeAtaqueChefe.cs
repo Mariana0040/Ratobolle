@@ -6,9 +6,6 @@ public class ControleDeAtaqueChefe : MonoBehaviour
     public GameObject tomatePrefab;
     public Transform pontoDeLancamento;
     public Transform pontoDeRespawnJogador;
-
-    // --- NOVO: Referência para o alvo ---
-    [Tooltip("Arraste o Transform do jogador para cá.")]
     public Transform alvo;
 
     [Header("Parâmetros do Ataque")]
@@ -16,19 +13,32 @@ public class ControleDeAtaqueChefe : MonoBehaviour
     public float intervaloAtaque = 2.5f;
     public float forcaLancamento = 20f;
 
+    // <-- SINALIZADO: Nova seção para o áudio
+    [Header("Áudio")]
+    [Tooltip("O som que toca quando o chefe arremessa o tomate.")]
+    [SerializeField] private AudioClip somDeArremesso;
+
     // Componentes e controle
     private Animator animator;
     private float proximoAtaquePermitido = 0f;
     private bool estaAnimandoAtaque = false;
 
+    // <-- SINALIZADO: Referência para o "alto-falante" do chefe
+    private AudioSource audioSource;
+
     void Start()
     {
         animator = GetComponent<Animator>();
 
-        // --- NOVO: Tenta encontrar o alvo se não for definido ---
+        // <-- SINALIZADO: Pega o componente AudioSource no início do jogo
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+        {
+            Debug.LogWarning("Nenhum componente AudioSource encontrado no Chefe. O som de arremesso não funcionará. Adicione um AudioSource.", this);
+        }
+
         if (alvo == null)
         {
-            // Pega a referência do alvo a partir do script principal de IA
             ChefeDeCozinhaAI cerebro = GetComponent<ChefeDeCozinhaAI>();
             if (cerebro != null && cerebro.alvo != null)
             {
@@ -41,7 +51,6 @@ public class ControleDeAtaqueChefe : MonoBehaviour
         }
     }
 
-    // MÉTODO PÚBLICO CHAMADO PELO "CÉREBRO PRINCIPAL"
     public void TentarAtaque()
     {
         if (Time.time >= proximoAtaquePermitido && !estaAnimandoAtaque)
@@ -49,8 +58,6 @@ public class ControleDeAtaqueChefe : MonoBehaviour
             proximoAtaquePermitido = Time.time + intervaloAtaque;
             estaAnimandoAtaque = true;
 
-            // --- NOVO: Olhar para o jogador ANTES de disparar a animação ---
-            // Isso garante que o chefe esteja virado na direção correta
             if (alvo != null)
             {
                 Vector3 direcaoParaAlvo = (alvo.position - transform.position).normalized;
@@ -61,17 +68,20 @@ public class ControleDeAtaqueChefe : MonoBehaviour
         }
     }
 
-    // EVENTO CHAMADO PELA ANIMAÇÃO NO MOMENTO DO ARREMESSO
     public void EventoDeArremesso()
     {
         if (tomatePrefab == null || pontoDeLancamento == null || alvo == null) return;
 
-        // --- LÓGICA DE LANÇAMENTO ATUALIZADA ---
+        // --- LÓGICA DE ÁUDIO ADICIONADA AQUI ---
+        // Toca o som de arremesso, se ambos (o som e o "alto-falante") existirem.
+        if (audioSource != null && somDeArremesso != null)
+        {
+            // PlayOneShot é ideal para efeitos sonoros, pois não interrompe outros sons.
+            audioSource.PlayOneShot(somDeArremesso);
+        }
+        // ----------------------------------------
 
-        // 1. Calcula a direção exata do ponto de lançamento até o centro do jogador.
         Vector3 direcaoParaAlvo = (alvo.position - pontoDeLancamento.position).normalized;
-
-        // 2. Cria o tomate. A rotação inicial não importa tanto, pois a força vai ditar a trajetória.
         GameObject tomate = Instantiate(tomatePrefab, pontoDeLancamento.position, Quaternion.LookRotation(direcaoParaAlvo));
 
         ProjetilTomate projetilScript = tomate.GetComponent<ProjetilTomate>();
@@ -81,12 +91,9 @@ public class ControleDeAtaqueChefe : MonoBehaviour
         }
 
         Rigidbody rb = tomate.GetComponent<Rigidbody>();
-
-        // 3. Aplica a força NA DIREÇÃO CALCULADA, e não na direção "para frente" do ponto de lançamento.
         rb.AddForce(direcaoParaAlvo * forcaLancamento, ForceMode.VelocityChange);
     }
 
-    // EVENTO CHAMADO PELA ANIMAÇÃO NO FIM DO ATAQUE
     public void EventoTerminoAtaque()
     {
         estaAnimandoAtaque = false;
