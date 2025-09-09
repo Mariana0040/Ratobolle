@@ -71,7 +71,7 @@ public class TemporizadorDeQueijo : MonoBehaviour
         AtualizarTextoDoTemporizador(tempoRestanteEmSegundos);
     }
 
-    private void PrepararNovaRodada()
+    public void PrepararNovaRodada()
     {
         Debug.Log("Preparando cenário para a próxima rodada... Aguardando jogador.");
 
@@ -110,6 +110,15 @@ public class TemporizadorDeQueijo : MonoBehaviour
 
         // 3. Prepara tudo para a próxima tentativa
         PrepararNovaRodada();
+    }
+    public void StopTimer()
+    {
+        cronometroRodando = false;
+        rodadaTerminou = true; // Marca a rodada como terminada para evitar a lógica de "perda"
+        Debug.Log("<color=yellow>Comando recebido: O CRONÔMETRO PAROU.</color>");
+
+        // Opcional: Você pode mudar a cor do texto do timer para verde, ou escondê-lo.
+        if (textoContagem != null) textoContagem.color = Color.green;
     }
 
     public void IniciarCronometro()
