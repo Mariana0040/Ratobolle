@@ -6,6 +6,10 @@ public class CollectibleItemData : ScriptableObject
 {
     public string itemName = "Novo Item";
     public Sprite icon;
+
+    [Header("Visualização no Jogo")]
+    [Tooltip("O prefab do modelo 3D que representa este item quando segurado.")]
+    public GameObject modelPrefab; // << ADICIONE ESTA LINHA!
 }
 
 // A classe do item no mundo do jogo, agora com a função de highlight de volta
@@ -23,6 +27,9 @@ public class CollectibleItem : MonoBehaviour
     private Renderer objectRenderer;
     private Color originalColor;
     private bool isHighlighted = false;
+
+
+
 
     void Awake()
     {

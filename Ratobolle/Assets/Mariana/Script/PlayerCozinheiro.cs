@@ -1,89 +1,121 @@
+// Salve como PlayerCozinheiro.cs
 using UnityEngine;
-using System.Collections;
 
 public class PlayerCozinheiro : MonoBehaviour
 {
-    [Header("Configuração de Cozinha")]
-    [Tooltip("O tempo que leva para preparar e entregar a comida.")]
-    public float tempoDePreparo = 10.0f;
-    [Tooltip("A que distância o jogador precisa estar do cliente para interagir.")]
-    public float raioDeInteracao = 2.0f;
-    public KeyCode teclaDeInteracao = KeyCode.E;
+    // --- O CÓDIGO DO SINGLETON QUE ESTAVA FALTANDO ---
+    public static PlayerCozinheiro Instance { get; private set; }
+    // ---------------------------------------------------
 
-    // Controle interno
-    private bool temTodosIngredientes = false; // Mude isso para true quando o jogador pegar tudo
-    private bool estaCozinhando = false;
+    [Header("Configurações de Interação")]
+    public float raioDeInteracao = 2.0f;
+    public KeyCode teclaDeEntrega = KeyCode.E;
+    public KeyCode teclaDoLivro = KeyCode.R;
+
+    [Header("Lógica de Cozinha")]
+    public Transform pontoPratoSegurado;
+
+    // Controle Interno
+    private CollectibleItemData pratoAtual;
+    private GameObject modeloPratoAtual;
+    private LivroDeReceitasUI livroDeReceitas;
+
+    void Awake()
+    {
+        // --- CONFIGURAÇÃO DO SINGLETON ---
+        // Garante que só exista uma instância do PlayerCozinheiro.
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+        }
+        else
+        {
+            Instance = this;
+        }
+        // ---------------------------------
+    }
+
+    void Start()
+    {
+        livroDeReceitas = Object.FindFirstObjectByType<LivroDeReceitasUI>();
+    }
 
     void Update()
     {
-        // Apenas um exemplo para teste. Você deve implementar sua lógica de coleta de ingredientes.
-        if (Input.GetKeyDown(KeyCode.I))
+        if (Input.GetKeyDown(teclaDoLivro))
         {
-            temTodosIngredientes = true;
-            Debug.Log("Jogador pegou todos os ingredientes!");
+            TentarAbrirFecharLivro();
         }
 
-        // Tenta cozinhar ao apertar a tecla
-        if (Input.GetKeyDown(teclaDeInteracao))
+        if (Input.GetKeyDown(teclaDeEntrega))
         {
-            if (!temTodosIngredientes)
-            {
-                Debug.Log("Faltam ingredientes!");
-                return;
-            }
-            if (estaCozinhando)
-            {
-                Debug.Log("Já estou cozinhando!");
-                return;
-            }
-
             TentarEntregarComida();
+        }
+    }
+
+    void TentarAbrirFecharLivro()
+    {
+        if (livroDeReceitas == null) return;
+
+        if (livroDeReceitas.IsOpen)
+        {
+            livroDeReceitas.FecharLivro();
+            return;
+        }
+
+        Collider[] colliders = Physics.OverlapSphere(transform.position, raioDeInteracao);
+        foreach (var col in colliders)
+        {
+            if (col.CompareTag("BancadaDeCozinha"))
+            {
+                livroDeReceitas.AbrirLivro(GerenciadorRestaurante.Instance.ObterReceitasDisponiveis());
+                return;
+            }
         }
     }
 
     void TentarEntregarComida()
     {
-        // Encontra todos os colliders próximos ao jogador
-        Collider[] collidersProximos = Physics.OverlapSphere(transform.position, raioDeInteracao);
+        if (pratoAtual == null) return;
 
-        foreach (var col in collidersProximos)
+        Collider[] colliders = Physics.OverlapSphere(transform.position, raioDeInteracao);
+        foreach (var col in colliders)
         {
-            // Tenta pegar o componente do cliente rato
-            ClienteRatoAI cliente = col.GetComponent<ClienteRatoAI>();
-
-            // Se encontrou um cliente e ele está esperando pedido...
-            if (cliente != null)
+            if (col.TryGetComponent(out ClienteRatoAI cliente))
             {
-                // Inicia o processo de cozinhar para este cliente
-                StartCoroutine(PrepararEEntregar(cliente));
-                return; // Sai do loop para não servir múltiplos clientes de uma vez
+                if (cliente.TentarEntregar(pratoAtual))
+                {
+                    GerenciadorRestaurante.Instance.RegistrarEntregaSucedida();
+                    LimparPratoSegurado();
+                    return;
+                }
             }
         }
-
-        Debug.Log("Nenhum cliente esperando por perto.");
     }
 
-    private IEnumerator PrepararEEntregar(ClienteRatoAI clienteAlvo)
+    public void SegurarPrato(CollectibleItemData pratoData)
     {
-        estaCozinhando = true;
-        Debug.Log($"Iniciando preparo para o cliente na mesa {clienteAlvo.gameObject.name}...");
+        LimparPratoSegurado();
+        pratoAtual = pratoData;
 
-        // Aqui você pode tocar uma animação de cozinhar no jogador
-
-        yield return new WaitForSeconds(tempoDePreparo);
-
-        Debug.Log("Comida pronta! Entregando...");
-        clienteAlvo.ReceberComida(5f); // O rato come por 5 segundos
-
-        // Reseta o estado
-        temTodosIngredientes = false;
-        estaCozinhando = false;
+        if (pratoData.modelPrefab != null && pontoPratoSegurado != null)
+        {
+            modeloPratoAtual = Instantiate(pratoData.modelPrefab, pontoPratoSegurado);
+        }
     }
 
-    // Desenha uma esfera no editor para visualizar o raio de interação
+    void LimparPratoSegurado()
+    {
+        pratoAtual = null;
+        if (modeloPratoAtual != null)
+        {
+            Destroy(modeloPratoAtual);
+        }
+    }
+
     void OnDrawGizmosSelected()
     {
-        Gizmos.color = Color.yellow;
+        Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, raioDeInteracao);
     }
 }

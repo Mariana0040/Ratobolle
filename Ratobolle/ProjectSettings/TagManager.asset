@@ -9,6 +9,7 @@ TagManager:
   - Enemy
   - Ingredient
   - InventoryUI
+  - BancadaDaCozinha
   layers:
   - Default
   - TransparentFX

@@ -52,6 +52,9 @@ public class GorditoController : MonoBehaviour
     // --- NOVO PARA SEGUIR PLATAFORMA MANUALMENTE ---
     private MovingPlatform_ManualFollow currentStandingPlatform = null;
     private Vector3 platformMovementDelta = Vector3.zero;
+    // --- NOVA VARIÁVEL DE TRAVA ---
+    private bool isMovementLocked = false;
+
 
 
     void Awake()
@@ -66,6 +69,8 @@ public class GorditoController : MonoBehaviour
 
     void Update()
     {
+        // --- ADICIONE ESTA LINHA NO TOPO DA FUNÇÃO ---
+        if (isMovementLocked) return; // Se o movimento estiver travado, ignora todo o resto.
         // Inputs são sempre lidos
         inputForward = Input.GetAxis("Vertical");
         inputTurn = Input.GetAxis("Horizontal");
@@ -102,6 +107,9 @@ public class GorditoController : MonoBehaviour
 
     void FixedUpdate()
     {
+        // --- ADICIONE ESTA LINHA NO TOPO DA FUNÇÃO ---
+        if (isMovementLocked) return; // Trava também a física do movimento.
+
         // Movimento e pulo são sempre processados.
         // O parentesco com a plataforma cuida de "carregar" o jogador.
         HandleRotation();
@@ -109,7 +117,15 @@ public class GorditoController : MonoBehaviour
         HandleJump();
         jumpInputFlag = false;
     }
-
+    public void LockMovement(bool shouldLock)
+    {
+        isMovementLocked = shouldLock;
+        if (shouldLock)
+        {
+            // Opcional: Zera a velocidade para uma parada imediata
+            rb.linearVelocity = Vector3.zero;
+        }
+    }
     void HandleRotation()
     {
         Quaternion turnDelta = Quaternion.Euler(0f, inputTurn * turnSpeed * Time.fixedDeltaTime, 0f);
