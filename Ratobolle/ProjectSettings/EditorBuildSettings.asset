@@ -11,6 +11,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Carol/CenaM&C.unity
     guid: ed92a9bcd2c82b34390907803aa0e56c
+  - enabled: 1
+    path: Assets/Mariana/Scenes/FASE UM.unity
+    guid: 294ec3cf443a2494c9d88ab084432f69
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 052faaac586de48259a63d0c4782560b, type: 3}
   m_UseUCBPForAssetBundles: 0
