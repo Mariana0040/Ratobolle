@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be58fd7e59a85864fa3b7900deba8ba2, type: 3}
+  m_Name: Teste
+  m_EditorClassIdentifier: 
+  nomeReceita: Teste
+  emojiPrato: {fileID: -534262879, guid: 0956a2a190929b74e93be7eae8c62eda, type: 3}
+  paginaReceita: {fileID: 368052647, guid: 72f65c98873b762489e6e0ddea98adbd, type: 3}
+  ingredientesNecessarios:
+  - itemData: {fileID: 11400000, guid: c41f1751f81f5664aab6893527799c4e, type: 2}
+    quantity: 1
+  pratoFinal: {fileID: 11400000, guid: c41f1751f81f5664aab6893527799c4e, type: 2}

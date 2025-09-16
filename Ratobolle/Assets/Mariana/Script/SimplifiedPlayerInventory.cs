@@ -112,22 +112,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.P))
-        {
-            Debug.Log("--- CHECAGEM DE STATUS DO INVENTÁRIO ---");
-
-            if (drawerPanelObject == null)
-            {
-                Debug.LogError("ERRO: A referência 'drawerPanelObject' ESTÁ NULA! Verifique a Tag 'InventoryUI'.");
-            }
-            else
-            {
-                Debug.Log("SUCESSO: A referência 'drawerPanelObject' está conectada corretamente.");
-            }
-
-            Debug.Log("------------------------------------");
-        }
-
+     
         if (Input.GetKeyDown(KeyCode.I))
         {
             ToggleDrawer();

@@ -8,6 +8,7 @@ public class ReceitaSO : ScriptableObject
     [Header("Informações da Receita")]
     public string nomeReceita;
     public Sprite emojiPrato; // O emoji que o rato vai mostrar
+    public Sprite paginaReceita; // O emoji que o rato vai mostrar
 
     [Header("Ingredientes Necessários")]
     public List<InventoryItem> ingredientesNecessarios;
