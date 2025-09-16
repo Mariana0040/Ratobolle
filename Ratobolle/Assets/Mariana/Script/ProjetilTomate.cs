@@ -37,7 +37,21 @@ public class ProjetilTomate : MonoBehaviour
 
         if (collision.gameObject.CompareTag(tagDoAlvo))
         {
-            // ... (lógica de dano e respawn permanece a mesma) ...
+            if (temporizador != null)
+            {
+                temporizador.ReduzirTempo(penalidadeDeTempo);
+            }
+
+            FakeRollCapsuleController playerController = collision.gameObject.GetComponent<FakeRollCapsuleController>();
+            if (playerController != null && pontoDeRespawn != null)
+            {
+                playerController.HandleLaserHit(pontoDeRespawn, penalidadeDeTempo);
+            }
+
+            if (efeitoDeImpacto != null)
+            {
+                Instantiate(efeitoDeImpacto, collision.contacts[0].point, Quaternion.identity);
+            }
         }
 
         Destroy(gameObject);

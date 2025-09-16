@@ -77836,7 +77836,7 @@ MonoBehaviour:
   - {fileID: 456612659}
   - {fileID: 1987088932}
   velocidadePatrulha: 3
-  alvo: {fileID: 1959606955}
+  alvo: {fileID: 454300921}
   distanciaDeteccao: 15
   velocidadePerseguicao: 6
   distanciaParaFecharGeladeira: 2
