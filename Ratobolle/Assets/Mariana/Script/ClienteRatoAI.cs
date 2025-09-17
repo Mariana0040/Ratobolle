@@ -141,8 +141,10 @@ public class ClienteRatoAI : MonoBehaviour
     private IEnumerator ComerComida(float duracao)
     {
         estadoAtual = EstadoCliente.Comendo;
+        animator.SetBool("Comendo",true);
         Debug.Log("Cliente Rato começou a comer.");
         yield return new WaitForSeconds(duracao);
+        animator.SetBool("Comendo", false);
         Debug.Log("Cliente Rato terminou de comer e vai embora satisfeito.");
         IrEmbora();
     }
