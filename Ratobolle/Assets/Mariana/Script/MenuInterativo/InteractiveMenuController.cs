@@ -6,161 +6,155 @@ using System.Collections;
 
 public class InteractiveMenuController : MonoBehaviour
 {
-    [Header("Referências do Personagem e Câmera")]
-    public Transform player; // Arraste o objeto do rato aqui
-    public Camera mainCamera; // A câmera principal da cena
+    [Header("Referências Principais")]
+    public MenuPlayerRoller playerRoller;
+    public Camera mainCamera;
 
     [Header("Pontos de Navegação")]
-    public Transform menuStartPoint; // Ponto inicial e central do menu
-    public Transform settingsPoint;  // Ponto para onde o rato vai para as configurações
-    public Transform tutorialPoint;  // Ponto de transição para o tutorial
-    public Transform gameStartPoint; // Ponto de partida para a cena do jogo
+    public Transform menuStartPoint;
+    public Transform settingsPoint;
+    public Transform tutorialPoint;
+    public Transform gameStartPoint;
 
-    // NOVO: Adicione uma referência para o ponto da câmera
     [Header("Pontos de Posição da Câmera")]
-    public Transform cameraStartPoint; // Arraste seu "PontoCameraPrincipal" aqui
-
-
-    [Header("Parâmetros de Animação")]
-    public float rollDuration = 1.5f; // Duração de cada rolamento
-    public float rollRotationAmount = 360f; // Quantos graus ele gira ao rolar
+    public Transform cameraStartPoint;
+    public Transform cameraSettingsPoint;
 
     [Header("Referências de UI")]
-    public GameObject mainMenuCanvas; // O Canvas com os botões Iniciar, Tutorial, etc.
-    public GameObject settingsCanvas; // O Canvas com as configurações
+    public GameObject mainMenuCanvas;
+    public GameObject settingsCanvas;
     public Button startGameButton;
     public Button tutorialButton;
     public Button settingsButton;
-    public Button backFromSettingsButton; // Botão "Voltar" das configurações
+    public Button backFromSettingsButton;
 
     private const string TutorialCompletedKey = "TutorialCompleted";
+    private bool isAnimating = false;
 
     void Start()
     {
-        // Garante que a escala de tempo está normal
         Time.timeScale = 1f;
-
-        // Posiciona o player no ponto inicial
-        player.position = menuStartPoint.position;
-        player.rotation = menuStartPoint.rotation;
-
-        // Garante que a câmera comece no lugar certo
+        playerRoller.transform.position = menuStartPoint.position;
+        playerRoller.transform.rotation = menuStartPoint.rotation;
         mainCamera.transform.position = cameraStartPoint.position;
         mainCamera.transform.rotation = cameraStartPoint.rotation;
 
-        // Desativa o menu de configurações no início
         settingsCanvas.SetActive(false);
-
-        // Verifica se o tutorial foi completado para habilitar o botão de iniciar
         bool tutorialCompleted = PlayerPrefs.GetInt(TutorialCompletedKey, 0) == 1;
         startGameButton.interactable = tutorialCompleted;
 
-        // Adiciona os listeners (ações) aos botões
         startGameButton.onClick.AddListener(HandleStartGame);
         tutorialButton.onClick.AddListener(HandleTutorial);
         settingsButton.onClick.AddListener(HandleSettings);
         backFromSettingsButton.onClick.AddListener(HandleBackFromSettings);
-    }
 
-    private void HandleStartGame()
-    {
-        mainMenuCanvas.SetActive(false); // Esconde a UI para focar na animação
-
-        // Cria uma sequência de animações com DOTween
-        Sequence sequence = DOTween.Sequence();
-
-        // 1. Primeiro rolamento para frente
-        sequence.Append(player.DORotate(new Vector3(rollRotationAmount, 0, 0), rollDuration, RotateMode.LocalAxisAdd).SetEase(Ease.Linear));
-        sequence.Join(player.DOMove(player.position + new Vector3(0, 0, 5), rollDuration)); // Move 5 unidades para frente
-
-        // 2. Segundo rolamento para frente
-        sequence.Append(player.DORotate(new Vector3(rollRotationAmount, 0, 0), rollDuration, RotateMode.LocalAxisAdd).SetEase(Ease.Linear));
-        sequence.Join(player.DOMove(gameStartPoint.position, rollDuration));
-
-        // 3. Câmera se acopla ao player (visão em primeira pessoa)
-        sequence.AppendCallback(() => {
-            mainCamera.transform.SetParent(player);
-            mainCamera.transform.DOLocalMove(new Vector3(0, 0.8f, 0.5f), 1f); // Ajuste esta posição para a visão desejada
-            mainCamera.transform.DOLocalRotate(Vector3.zero, 1f);
-        });
-
-        // 4. Aguarda um pouco e carrega a cena do jogo
-        sequence.AppendInterval(1.5f);
-        sequence.OnComplete(() => {
-            SceneManager.LoadScene("SuaCenaDeJogo"); // SUBSTITUA PELO NOME DA SUA CENA
-        });
-    }
-
-    private void HandleTutorial()
-    {
-        mainMenuCanvas.SetActive(false);
-
-        Sequence sequence = DOTween.Sequence();
-
-        // 1. Rola para a frente em direção ao ponto do tutorial
-        sequence.Append(player.DORotate(new Vector3(rollRotationAmount, 0, 0), rollDuration, RotateMode.LocalAxisAdd).SetEase(Ease.Linear));
-        sequence.Join(player.DOMove(tutorialPoint.position, rollDuration));
-
-        // 2. Câmera foca no ponto do tutorial
-        sequence.Join(mainCamera.transform.DOLookAt(tutorialPoint.position, rollDuration));
-
-        // 3. Ao terminar a animação, carrega a cena do tutorial
-        sequence.OnComplete(() => {
-            StartCoroutine(LoadTutorialScene());
-        });
-    }
-
-    private IEnumerator LoadTutorialScene()
-    {
-        // Carrega a cena do tutorial aditivamente
-        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("CenaM&C", LoadSceneMode.Additive); // SUBSTITUA O NOME
-        while (!asyncLoad.isDone)
-        {
-            yield return null;
-        }
-
-        // Desativa os objetos da cena do menu para focar apenas no tutorial
-        mainMenuCanvas.SetActive(false);
-        // Opcional: Desativar outros elementos da cena de menu se necessário
-        // GameObject.Find("LuzesDoMenu").SetActive(false);
+        // Inicia o rolamento ocioso no começo do jogo
+        playerRoller.StartIdleRoll();
     }
 
     private void HandleSettings()
     {
-        mainMenuCanvas.SetActive(false);
-
-        Sequence sequence = DOTween.Sequence();
-
-        // Rola para a esquerda (eixo Z) em direção ao ponto de configurações
-        sequence.Append(player.DORotate(new Vector3(0, 0, -rollRotationAmount), rollDuration, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuad));
-        sequence.Join(player.DOMove(settingsPoint.position, rollDuration));
-        sequence.Join(mainCamera.transform.DOLookAt(settingsPoint.position, rollDuration));
-
-        // Ao completar, mostra o menu de configurações
-        sequence.OnComplete(() => {
-            settingsCanvas.SetActive(true);
-        });
+        if (isAnimating) return;
+        StartCoroutine(SettingsCoroutine());
     }
 
-    private void HandleBackFromSettings()
+    private IEnumerator SettingsCoroutine()
     {
+        isAnimating = true;
+        mainMenuCanvas.SetActive(false);
+
+        // O rato rola para o ponto de configurações
+        bool playerAnimationFinished = false;
+        playerRoller.AnimateToPoint(settingsPoint, () => {
+            playerAnimationFinished = true;
+        });
+
+        // Câmera se move para a posição de observação
+        mainCamera.transform.DOMove(cameraSettingsPoint.position, 1.8f).SetEase(Ease.OutSine);
+        mainCamera.transform.DOLookAt(settingsPoint.position, 1.8f).SetEase(Ease.OutSine);
+
+        yield return new WaitUntil(() => playerAnimationFinished);
+
+        // Garante a rotação final e RECOMEÇA o rolamento ocioso no novo local
+        playerRoller.AnimateRotationTo(menuStartPoint.rotation, 0.5f);
+        yield return new WaitForSeconds(0.5f);
+        playerRoller.StartIdleRoll();
+
+        settingsCanvas.SetActive(true);
+        isAnimating = false;
+    }
+
+    public void HandleBackFromSettings()
+    {
+        if (isAnimating) return;
+        StartCoroutine(BackFromSettingsCoroutine());
+    }
+
+    private IEnumerator BackFromSettingsCoroutine()
+    {
+        isAnimating = true;
         settingsCanvas.SetActive(false);
 
-        Sequence sequence = DOTween.Sequence();
+        // Câmera volta para a posição inicial
+        mainCamera.transform.DOMove(cameraStartPoint.position, 1.5f);
+        mainCamera.transform.DORotate(cameraStartPoint.rotation.eulerAngles, 1.5f);
 
-        // Rola de volta para a direita (eixo Z) em direção ao ponto central
-        sequence.Append(player.DORotate(new Vector3(0, 0, rollRotationAmount), rollDuration, RotateMode.LocalAxisAdd).SetEase(Ease.OutQuad));
-        sequence.Join(player.DOMove(menuStartPoint.position, rollDuration));
-        sequence.Join(mainCamera.transform.DOLookAt(menuStartPoint.position, rollDuration));
-
-        // CORREÇÃO: Em vez de apenas DOLookAt, vamos mover a câmera de volta para a posição E rotação originais
-        sequence.Join(mainCamera.transform.DOMove(cameraStartPoint.position, rollDuration));
-        sequence.Join(mainCamera.transform.DORotate(cameraStartPoint.rotation.eulerAngles, rollDuration));
-
-
-        // Ao completar, mostra o menu principal novamente
-        sequence.OnComplete(() => {
-            mainMenuCanvas.SetActive(true);
+        // Rato rola de volta para o ponto inicial
+        bool playerAnimationFinished = false;
+        playerRoller.AnimateToPoint(menuStartPoint, () => {
+            playerAnimationFinished = true;
         });
+
+        yield return new WaitUntil(() => playerAnimationFinished);
+
+        // Garante a rotação final e RECOMEÇA o rolamento ocioso no local inicial
+        playerRoller.AnimateRotationTo(menuStartPoint.rotation, 0.2f);
+        yield return new WaitForSeconds(0.2f);
+        playerRoller.StartIdleRoll();
+
+        mainMenuCanvas.SetActive(true);
+        isAnimating = false;
+    }
+
+    // As outras funções (HandleTutorial, HandleStartGame) chamam AnimateToPoint ou AnimateToCamera,
+    // que já cuidam de parar o rolamento ocioso, então elas não precisam de mudanças.
+
+    private void HandleTutorial() { if (isAnimating) return; StartCoroutine(TutorialCoroutine()); }
+    private void HandleStartGame() { if (isAnimating) return; StartCoroutine(StartGameCoroutine()); }
+
+    private IEnumerator TutorialCoroutine()
+    {
+        isAnimating = true;
+        mainMenuCanvas.SetActive(false);
+        mainCamera.transform.DOMove(mainCamera.transform.position + playerRoller.transform.forward * 2f, 1.8f).SetEase(Ease.InSine);
+
+        bool animationFinished = false;
+        playerRoller.AnimateToCamera(mainCamera, () => { animationFinished = true; });
+        yield return new WaitUntil(() => animationFinished);
+
+        SceneTransitionData.SetData(playerRoller.transform, mainCamera.transform);
+        yield return StartCoroutine(LoadTutorialScene());
+    }
+
+    private IEnumerator StartGameCoroutine()
+    {
+        isAnimating = true;
+        mainMenuCanvas.SetActive(false);
+        bool animationFinished = false;
+        playerRoller.AnimateToPoint(gameStartPoint, () => { animationFinished = true; });
+        yield return new WaitUntil(() => animationFinished);
+
+        mainCamera.transform.SetParent(playerRoller.transform);
+        mainCamera.transform.DOLocalMove(new Vector3(0, 0.8f, 0.5f), 1f);
+        mainCamera.transform.DOLocalRotate(Vector3.zero, 1f);
+        yield return new WaitForSeconds(1.5f);
+        SceneManager.LoadScene("FASE UM");
+    }
+
+    private IEnumerator LoadTutorialScene()
+    {
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("CenaM&C", LoadSceneMode.Additive);
+        while (!asyncLoad.isDone) yield return null;
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().name);
     }
 }
