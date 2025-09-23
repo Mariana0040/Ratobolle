@@ -7,20 +7,16 @@ using DG.Tweening;
 /// </summary>
 public class TitleAnimator : MonoBehaviour
 {
-    [Header("Animação de Movimento e Rotação")]
+    [Header("Animação de Entrada (Rolagem/Aparição)")]
     [Tooltip("Posição inicial do título, fora da tela. Será a 'anchoredPosition'.")]
-    public Vector3 initialPosition = new Vector3(0, 800f, 0); // Exemplo: começa bem acima
-    [Tooltip("Posição final onde o título deve ficar. Será a 'anchoredPosition'.")]
-    public Vector3 finalPosition = new Vector3(0, 300f, 0); // Sua posição atual
+    public Vector3 startOffset = new Vector3(-200, -100, 0); // Exemplo: um pouco abaixo e à esquerda da posição final
     [Tooltip("Duração em segundos para o título chegar ao seu destino.")]
-    public float moveDuration = 1.5f;
-    [Tooltip("Efeito de suavização (easing) para o movimento.")]
-    public Ease moveEase = Ease.OutBounce; // Um efeito "quicando" ao chegar
+    public float entryDuration = 1.5f;
+    [Tooltip("Efeito de suavização (easing) para a entrada.")]
+    public Ease entryEase = Ease.OutBack; // Um efeito que "exagera" e volta
 
-    [Tooltip("Ângulo total que o título irá girar durante a entrada.")]
-    public float rollAngle = 360f; // Ex: 360f para uma volta completa
-    [Tooltip("Duração da rotação (pode ser diferente da duração do movimento).")]
-    public float rollDuration = 1.2f; // Pode ser um pouco mais rápido que o movimento
+    [Tooltip("Ângulo total que o título irá girar durante a entrada (para simular rolagem).")]
+    public float rollAngleEntry = 360f; // Ex: 360f para uma volta completa no eixo Z
 
     [Header("Animação de Pulso (Idle)")]
     [Tooltip("O quanto a escala deve aumentar no pulso. 1.05 = 5% maior.")]
@@ -30,7 +26,8 @@ public class TitleAnimator : MonoBehaviour
 
     private RectTransform rectTransform;
     private Vector3 originalScale; // Guarda a escala que o objeto tem no Inspector
-    private Quaternion originalRotation; // Guarda a rotação original
+    private Vector3 originalAnchoredPosition; // Guarda a posição final que o designer configurou
+    private Quaternion originalRotation; // Guarda a rotação original (geralmente Quaternion.identity para UI)
 
     void Start()
     {
@@ -41,9 +38,11 @@ public class TitleAnimator : MonoBehaviour
             return;
         }
 
-        // Salva a escala e rotação originais ANTES de qualquer animação
+        // Salva a escala, posição e rotação originais ANTES de qualquer animação
+        // A posição atual no Inspector será a 'posição final' para a entrada.
+        originalAnchoredPosition = rectTransform.anchoredPosition;
         originalScale = rectTransform.localScale;
-        originalRotation = rectTransform.localRotation;
+        originalRotation = rectTransform.localRotation; // Para UI, geralmente será Quaternion.identity
 
         // Inicia a animação de entrada
         PlayEntryAnimation();
@@ -51,26 +50,24 @@ public class TitleAnimator : MonoBehaviour
 
     private void PlayEntryAnimation()
     {
-        // 1. Define a posição inicial do logo (fora da tela)
-        // Usamos anchoredPosition para UI
-        rectTransform.anchoredPosition = initialPosition;
-        // Começa com escala zero ou bem pequena para um efeito de "crescer"
-        rectTransform.localScale = Vector3.zero;
-        // Começa com uma rotação para simular o início do "rolar"
-        rectTransform.localRotation = Quaternion.Euler(0, 0, -rollAngle); // Começa "girado" para trás
+        // 1. Define o estado inicial para a animação de entrada
+        rectTransform.localScale = Vector3.zero; // Começa invisível
+        rectTransform.anchoredPosition = originalAnchoredPosition + startOffset; // Começa com um offset
+        rectTransform.localRotation = Quaternion.Euler(0, 0, -rollAngleEntry); // Começa "girado" no eixo Z
 
         // 2. Cria uma sequência para controlar múltiplas animações
         Sequence entrySequence = DOTween.Sequence();
 
-        // 3. Anima o movimento para a posição final
-        // DOLocalMove é para anchoredPosition em RectTransform
-        entrySequence.Append(rectTransform.DOLocalMove(finalPosition, moveDuration).SetEase(moveEase));
+        // 3. Anima a escala para o tamanho original
+        entrySequence.Append(rectTransform.DOScale(originalScale, entryDuration).SetEase(entryEase));
 
-        // 4. Anima a rotação ao mesmo tempo (Join)
-        entrySequence.Join(rectTransform.DORotate(originalRotation.eulerAngles, rollDuration, RotateMode.FastBeyond360).SetEase(moveEase));
+        // 4. Anima o movimento para a posição final (originalAnchoredPosition)
+        // Usa Join para que isso aconteça ao mesmo tempo que a escala
+        entrySequence.Join(rectTransform.DOLocalMove(originalAnchoredPosition, entryDuration).SetEase(entryEase));
 
-        // 5. Anima a escala para o tamanho original ao mesmo tempo (Join)
-        entrySequence.Join(rectTransform.DOScale(originalScale, moveDuration / 2).SetEase(Ease.OutBack)); // Cresce rapidamente
+        // 5. Anima a rotação para a rotação original (simulando a rolagem)
+        // Usa Join para que isso aconteça ao mesmo tempo
+        entrySequence.Join(rectTransform.DORotate(originalRotation.eulerAngles, entryDuration, RotateMode.FastBeyond360).SetEase(entryEase));
 
         // 6. Define o que acontece QUANDO a sequência terminar
         entrySequence.OnComplete(StartPulsingIdleAnimation);
@@ -78,6 +75,10 @@ public class TitleAnimator : MonoBehaviour
 
     private void StartPulsingIdleAnimation()
     {
+        // Garante que a rotação e escala estejam exatamente nas originais após a entrada
+        rectTransform.localRotation = originalRotation;
+        rectTransform.localScale = originalScale;
+
         // Anima a escala para o valor multiplicado e de volta ao original (LoopType.Yoyo)
         rectTransform.DOScale(originalScale * pulseScaleMultiplier, pulseDuration)
             .SetEase(Ease.InOutSine)       // Suaviza o início e o fim do pulso

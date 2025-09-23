@@ -26,6 +26,10 @@ public class InteractableObject : MonoBehaviour
     private Color originalColor;
     private bool isHighlighted = false;
 
+    [Header("Physics")]
+    [Tooltip("O collider físico da porta que deve ser desativado quando aberta.")]
+    public Collider doorCollider;
+
     private Animator animator;
     private Quaternion initialRotation;
 
@@ -94,20 +98,37 @@ public class InteractableObject : MonoBehaviour
 
     void HandleDoorTween()
     {
+        // Verificação de segurança para garantir que tudo está configurado
         if (pivotPoint == null) return;
+        if (doorCollider == null)
+        {
+            Debug.LogWarning($"O 'Door Collider' não foi configurado em {gameObject.name}. A física não será alterada.");
+            return;
+        }
+
         DOTween.Kill(pivotPoint);
 
         if (isOpen)
         {
+            // A porta está ABRINDO.
+            // Desative o collider IMEDIATAMENTE no início da animação.
+            doorCollider.enabled = false;
+
             Quaternion targetRotation = initialRotation * Quaternion.Euler(rotationAxis * openAngle);
             pivotPoint.DOLocalRotateQuaternion(targetRotation, tweenDuration).SetEase(Ease.OutQuad);
         }
         else
         {
-            pivotPoint.DOLocalRotateQuaternion(initialRotation, tweenDuration).SetEase(Ease.OutQuad);
+            // A porta está FECHANDO.
+            // O collider já está desativado.
+            // Nós vamos reativá-lo usando o OnComplete, que é chamado APENAS QUANDO a animação terminar.
+            pivotPoint.DOLocalRotateQuaternion(initialRotation, tweenDuration)
+                .SetEase(Ease.OutQuad)
+                .OnComplete(() => {
+                    doorCollider.enabled = true;
+                });
         }
     }
-
     void HandleAnimatorOrGeneric()
     {
         if (animator != null)
