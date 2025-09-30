@@ -152,7 +152,7 @@ public class FakeRollCapsuleController : MonoBehaviour
         float castRadius = capsuleCollider.radius * 0.9f;
         float castDistance = groundCheckDistance + capsuleCollider.radius * 0.1f;
         isGrounded = Physics.SphereCast(startPoint, castRadius, -transform.up, out RaycastHit hitInfo, castDistance, layersToConsider, QueryTriggerInteraction.Ignore);
-    }
+    }//
 
     void OnTriggerEnter(Collider other)
     {

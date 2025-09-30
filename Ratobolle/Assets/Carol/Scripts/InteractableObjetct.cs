@@ -96,37 +96,43 @@ public class InteractableObject : MonoBehaviour
         }
     }
 
+    // Dentro de InteractableObject.cs
+
     void HandleDoorTween()
     {
-        // Verificação de segurança para garantir que tudo está configurado
         if (pivotPoint == null) return;
-        if (doorCollider == null)
-        {
-            Debug.LogWarning($"O 'Door Collider' não foi configurado em {gameObject.name}. A física não será alterada.");
-            return;
-        }
 
+        // Mata qualquer animação anterior para evitar conflitos
         DOTween.Kill(pivotPoint);
 
         if (isOpen)
         {
-            // A porta está ABRINDO.
-            // Desative o collider IMEDIATAMENTE no início da animação.
-            doorCollider.enabled = false;
+            // ABRINDO
+            // Se houver um collider, desative-o. Se não, não faça nada.
+            if (doorCollider != null)
+            {
+                doorCollider.enabled = false;
+            }
 
             Quaternion targetRotation = initialRotation * Quaternion.Euler(rotationAxis * openAngle);
             pivotPoint.DOLocalRotateQuaternion(targetRotation, tweenDuration).SetEase(Ease.OutQuad);
         }
         else
         {
-            // A porta está FECHANDO.
-            // O collider já está desativado.
-            // Nós vamos reativá-lo usando o OnComplete, que é chamado APENAS QUANDO a animação terminar.
-            pivotPoint.DOLocalRotateQuaternion(initialRotation, tweenDuration)
-                .SetEase(Ease.OutQuad)
-                .OnComplete(() => {
-                    doorCollider.enabled = true;
-                });
+            // FECHANDO
+            // Se houver um collider, reative-o APÓS a animação terminar.
+            if (doorCollider != null)
+            {
+                pivotPoint.DOLocalRotateQuaternion(initialRotation, tweenDuration)
+                    .SetEase(Ease.OutQuad)
+                    .OnComplete(() => {
+                        doorCollider.enabled = true;
+                    });
+            }
+            else // Se não houver collider para se preocupar, apenas feche a porta.
+            {
+                pivotPoint.DOLocalRotateQuaternion(initialRotation, tweenDuration).SetEase(Ease.OutQuad);
+            }
         }
     }
     void HandleAnimatorOrGeneric()
