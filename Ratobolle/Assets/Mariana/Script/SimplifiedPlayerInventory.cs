@@ -36,6 +36,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
     public GameObject drawerPanelObject;
     [SerializeField] private RectTransform drawerRectTransform;
 
+
     [Header("Configurações de Animação")]
     [SerializeField] private float drawerHiddenXPosition = -500f;
     [SerializeField] private float drawerVisibleXPosition = 0f;
