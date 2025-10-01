@@ -7931,12 +7931,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 182a6844ec7c9f64c838dba9f7419e0c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  initialPosition: {x: -40, y: 180, z: -70}
-  finalPosition: {x: -38, y: 95, z: 0}
-  moveDuration: 1.5
-  moveEase: 30
-  rollAngle: 360
-  rollDuration: 1.2
+  startOffset: {x: -200, y: -100, z: 0}
+  entryDuration: 1.5
+  entryEase: 27
+  rollAngleEntry: 360
   pulseScaleMultiplier: 1.5
   pulseDuration: 1
 --- !u!114 &880027361

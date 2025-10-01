@@ -3,6 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
+
 public class PlayerCozinheiro : MonoBehaviour
 {
     public static PlayerCozinheiro Instance { get; private set; }
@@ -14,6 +15,7 @@ public class PlayerCozinheiro : MonoBehaviour
 
     [Header("Lógica de Cozinha")]
     public Transform pontoPratoSegurado;
+
 
     // --- CONTROLE INTERNO ---
     private CollectibleItemData pratoAtual;
@@ -30,6 +32,19 @@ public class PlayerCozinheiro : MonoBehaviour
     void Awake()
     {
         if (Instance != null && Instance != this) { Destroy(gameObject); } else { Instance = this; }
+
+        // --- ESTA É A LÓGICA QUE VOCÊ PRECISA ADICIONAR ---
+        if (Instance != null && Instance != this)
+        {
+            // Se já existe um jogador na cena (porque viemos de outra),
+            // destrua este novo que foi carregado com a cena.
+            Destroy(gameObject);
+            return; // Impede que o resto do Awake seja executado
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject); // A linha mais importante!
+        // --------------------------------------------------
     }
 
     void Start()

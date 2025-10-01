@@ -6755,6 +6755,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   recipeBookPanel: {fileID: 478413872}
+  exitBookPrompt: {fileID: 0}
 --- !u!114 &173144786
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -57468,6 +57469,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   recipeBookPanel: {fileID: 478413872}
+  exitBookPrompt: {fileID: 0}
 --- !u!4 &1414022337 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 4ea94d1cbf62f5142b70b66a367685e3, type: 3}
@@ -60924,6 +60926,7 @@ MonoBehaviour:
   alvo: {fileID: 1959606955}
   distanciaDeteccao: 14.38
   velocidadePerseguicao: 6
+  playerRespawnPoint: {fileID: 0}
 --- !u!95 &1494084118
 Animator:
   serializedVersion: 7
@@ -91094,7 +91097,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.32083338, y: 0.039}
   m_AnchorMax: {x: 1, y: 0.18900001}
-  m_AnchoredPosition: {x: 82.10599, y: -385.69077}
+  m_AnchoredPosition: {x: 82.10599, y: -385.69073}
   m_SizeDelta: {x: 1655.6, y: 179.85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2115656781

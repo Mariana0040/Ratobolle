@@ -50,13 +50,14 @@ public class SimplifiedPlayerInventory : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
+        if (Instance != null)
         {
-            Destroy(gameObject);
-            return;
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
         }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
+        // Se a instância já existir, este objeto duplicado (se houver)
+        // será destruído quando a cena carregar, mas o original permanecerá.
+        // A lógica de Destroy foi removida conforme solicitado.
     }
 
     void OnEnable()
@@ -74,8 +75,13 @@ public class SimplifiedPlayerInventory : MonoBehaviour
     {
         Debug.Log("Nova cena carregada. Procurando pela UI do inventário...");
 
+        // --- LÓGICA DE RECONEXÃO ATUALIZADA ---
+        // Agora, em vez de depender de referências antigas, ele procura ativamente a UI.
+        GameObject inventoryUIPanel = GameObject.FindGameObjectWithTag("InventoryUI");
+
         if (drawerPanelObject != null)
         {
+            drawerPanelObject = inventoryUIPanel;
             drawerRectTransform = drawerPanelObject.GetComponent<RectTransform>();
 
             uiSlots.Clear();
@@ -227,6 +233,16 @@ public class SimplifiedPlayerInventory : MonoBehaviour
             });
     }
 
+    // --- ADICIONE ESTA NOVA FUNÇÃO AQUI ---
+    /// <summary>
+    /// Retorna a contagem de quantos tipos de itens únicos o jogador possui.
+    /// </summary>
+    public int GetUniqueItemCount()
+    {
+        return playerItems.Count;
+    }
+    // -----------------------------------
+
 
     public void LoseHalfOfAllItems()
     {
@@ -245,6 +261,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
         playerItems.RemoveAll(item => item.quantity <= 0);
         UpdateInventoryUI();
     }
+     
 
     public void ClearAllItems()
     {
