@@ -27,7 +27,7 @@ public class InGamePauseAndSettings : MonoBehaviour
         Cursor.visible = false;
 
         // Puxa as configurações salvas para os sliders
-        LoadSettings();
+        //LoadSettings();
     }
 
     void Update()
