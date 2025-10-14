@@ -10,6 +10,7 @@ TagManager:
   - Ingredient
   - InventoryUI
   - BancadaDaCozinha
+  - VovoUI
   layers:
   - Default
   - TransparentFX
@@ -27,7 +28,7 @@ TagManager:
   - MovingPlatformSurface
   - MovingPlatforms
   - Player
-  - 
+  - VovoUI
   - 
   - 
   - 
