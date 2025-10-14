@@ -27,7 +27,7 @@ public class PlayerCozinheiro : MonoBehaviour
 
     void Update()
     {
-        if (Input.GetKeyDown(teclaDoLivro))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             TentarAbrirFecharLivro();
         }
