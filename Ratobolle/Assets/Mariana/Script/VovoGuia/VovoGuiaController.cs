@@ -1,37 +1,45 @@
 using UnityEngine;
-using TMPro; // Para controlar o texto
-using System.Collections.Generic; // Para usar o sistema de Fila (Queue)
+using TMPro;
+using System.Collections.Generic;
+using DG.Tweening; // <--- PASSO 1: IMPORTAR A BIBLIOTECA DO DOTWEEN
 
 public class VovoGuiaController : MonoBehaviour
 {
     // --- VARIÁVEIS PÚBLICAS (CONFIGURADAS NO INSPECTOR) ---
+    [Header("Configurações de Movimento")]
     public Transform alvoParaSeguir;
     public Vector3 offset = new Vector3(1.5f, 1.0f, 0);
-    public float velocidadeDeSuavizacao = 5.0f;
+    public float velocidadeDeSeguir = 2.0f; // Agora é uma velocidade mais direta
 
-    // --- VARIÁVEIS DO SISTEMA DE DIÁLOGO ---
-    private GameObject canvasDialogo; // A referência para o Canvas do diálogo
-    private TMP_Text textoDialogo; // A referência para o campo de texto
-    private Queue<string> frases; // Uma "fila" para guardar as frases da conversa
+    [Header("Componentes do Diálogo")]
+    public GameObject canvasDialogo;
+    public TMP_Text textoDialogo;
+    public TMP_Text textoPromptEnter;
+
+    // --- Variáveis Internas ---
+    private Queue<string> frases;
     private bool emDialogo = false;
-    public TMP_Text textoPromptEnter; // <-- NOSSA NOVA LINHA!
+    private Vector3 posicaoOriginalEscala; // Para guardar a escala original
 
+    void Awake() // Usamos Awake para garantir que a escala seja guardada antes de tudo
+    {
+        // Guarda a escala original da vovó para a animação de "surgir"
+        posicaoOriginalEscala = transform.localScale;
+        // Começa com a vovó invisível para ela poder "aparecer"
+        transform.localScale = Vector3.zero;
+    }
 
     void Start()
     {
-        // Encontra o Canvas e o Texto pelo nome e os guarda.
-        // IMPORTANTE: Seus objetos devem ter EXATAMENTE esses nomes na Hierarchy!
-        canvasDialogo = GameObject.Find("CanvasDialogo");
-        textoDialogo = GameObject.Find("TextoDialogo").GetComponent<TMP_Text>();
-
-        // Inicia com a fila de frases vazia
         frases = new Queue<string>();
-
-        // Garante que o diálogo comece escondido
         if (canvasDialogo != null)
         {
             canvasDialogo.SetActive(false);
         }
+
+        // --- NOVA ANIMAÇÃO DE SURGIR! ---
+        // Anima a escala de 0 para a escala original em 0.5 segundos, com um efeito "elástico" no final.
+        transform.DOScale(posicaoOriginalEscala, 0.5f).SetEase(Ease.OutBack);
     }
 
     void Update()
@@ -39,60 +47,75 @@ public class VovoGuiaController : MonoBehaviour
         // Se a vovó tem um alvo e não está no meio de uma conversa...
         if (alvoParaSeguir != null && !emDialogo)
         {
-            // ...ela segue o jogador.
+            // --- MOVIMENTO DE SEGUIR COM DOTWEEN! ---
             Vector3 posicaoDesejada = alvoParaSeguir.position + offset;
-            transform.position = Vector3.Lerp(transform.position, posicaoDesejada, velocidadeDeSuavizacao * Time.deltaTime);
-            transform.LookAt(alvoParaSeguir);
+
+            // Move a vovó para a posição desejada. DOTween cuida da suavização.
+            // Usamos DOMove em vez de ficar atualizando a cada frame.
+            transform.DOMove(posicaoDesejada, 1f / velocidadeDeSeguir).SetEase(Ease.OutSine);
+
+            // Usa o DOLookAt para fazer a vovó olhar suavemente para o jogador
+            transform.DOLookAt(alvoParaSeguir.position, 0.5f);
         }
 
-        // Se estamos em diálogo e o jogador aperta Enter... (Mudei para a tecla Enter!)
-        if (emDialogo && (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)))
+        // Se estamos em diálogo e o jogador aperta Enter...
+        if (emDialogo && (Input.GetKeyDown(KeyCode.Return)))
         {
-            // ...mostra a próxima frase.
             MostrarProximaFrase();
         }
     }
 
-    // Função que o gatilho chama. Agora ela recebe um ARRAY de strings.
     public void IniciarConversa(string[] conversa)
     {
         emDialogo = true;
-        canvasDialogo.SetActive(true); // Mostra a caixa de diálogo
-        textoPromptEnter.gameObject.SetActive(true); // <-- MOSTRA o texto do "Enter"
 
+        // --- NOVA ANIMAÇÃO DE CONVERSA! ---
+        // Para qualquer movimento que a vovó esteja fazendo para seguir
+        transform.DOKill();
 
-        frases.Clear(); // Limpa qualquer conversa antiga
+        // Move a vovó para uma posição de conversa, na frente do jogador
+        Vector3 posicaoConversa = alvoParaSeguir.position + alvoParaSeguir.forward * 2f + Vector3.up;
+        transform.DOMove(posicaoConversa, 0.5f).SetEase(Ease.OutCubic);
 
-        // Adiciona cada frase da conversa na nossa fila
+        // Vira a vovó para olhar diretamente para o jogador
+        transform.DOLookAt(alvoParaSeguir.position, 0.3f);
+
+        // Balanço infinito estilo Aku Aku!
+        transform.DOShakeRotation(100f, new Vector3(0, 5, 0), 10, 90, false, ShakeRandomnessMode.Harmonic).SetLoops(-1);
+
+        // O resto é igual...
+        canvasDialogo.SetActive(true);
+        if (textoPromptEnter != null) textoPromptEnter.gameObject.SetActive(true);
+
+        frases.Clear();
         foreach (string frase in conversa)
         {
             frases.Enqueue(frase);
         }
-
-        // Mostra a PRIMEIRA frase da fila
         MostrarProximaFrase();
     }
 
     public void MostrarProximaFrase()
     {
-        // Se a fila de frases acabou...
         if (frases.Count == 0)
         {
-            // ...encerra a conversa.
             EncerrarConversa();
-            return; // Sai da função
+            return;
         }
-
-        // Pega a próxima frase da fila
         string fraseAtual = frases.Dequeue();
-        // Coloca a frase no campo de texto da tela
         textoDialogo.text = fraseAtual;
     }
 
     void EncerrarConversa()
     {
         emDialogo = false;
-        canvasDialogo.SetActive(false); // Esconde a caixa de diálogo
-        textoPromptEnter.gameObject.SetActive(false); // <-- ESCONDE o texto do "Enter"
+
+        // Para a animação de balanço
+        transform.DOKill();
+        // Refaz a animação de escala para garantir que ela esteja no tamanho certo
+        transform.DOScale(posicaoOriginalEscala, 0.2f);
+
+        canvasDialogo.SetActive(false);
+        if (textoPromptEnter != null) textoPromptEnter.gameObject.SetActive(false);
     }
 }
