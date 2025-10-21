@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine.SceneManagement;
-
+using Mono.Cecil.Cil;
 // As definições de classe permanecem as mesmas
 [System.Serializable]
 public class InventoryItem
@@ -15,19 +15,15 @@ public class InventoryItem
     public int quantity;
     public InventoryItem(CollectibleItemData data, int amount) { itemData = data; quantity = amount; }
 }
-
 [System.Serializable]
 public class UI_InventorySlot
 {
     public Image iconImage;
     public TextMeshProUGUI quantityText;
 }
-
-
 public class SimplifiedPlayerInventory : MonoBehaviour
 {
     public static SimplifiedPlayerInventory Instance { get; private set; }
-
     [Header("Banco de Dados de Itens")]
     public List<CollectibleItemData> itemDatabase;
 
@@ -50,15 +46,11 @@ public class SimplifiedPlayerInventory : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
-        DontDestroyOnLoad(gameObject);
-    }
 
+        Instance = this;
+
+    }
+    // --- FIM DA CORREÇÃO ---
     void OnEnable()
     {
         SceneManager.sceneLoaded += OnSceneLoaded;
@@ -113,7 +105,6 @@ public class SimplifiedPlayerInventory : MonoBehaviour
 
     void Update()
     {
-     
         if (Input.GetKeyDown(KeyCode.I))
         {
             ToggleDrawer();
@@ -227,6 +218,16 @@ public class SimplifiedPlayerInventory : MonoBehaviour
             });
     }
 
+    // --- ADICIONE ESTA NOVA FUNÇÃO AQUI ---
+    /// <summary>
+    /// Retorna a contagem de quantos tipos de itens únicos o jogador possui.
+    /// </summary>
+    public int GetUniqueItemCount()
+    {
+        return playerItems.Count;
+    }
+    // -----------------------------------
+
 
     public void LoseHalfOfAllItems()
     {
@@ -245,6 +246,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
         playerItems.RemoveAll(item => item.quantity <= 0);
         UpdateInventoryUI();
     }
+
 
     public void ClearAllItems()
     {

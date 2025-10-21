@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Receita Pizza
   m_EditorClassIdentifier: 
   nomeReceita: Pizza
-  emojiPrato: {fileID: 2118049404, guid: 0956a2a190929b74e93be7eae8c62eda, type: 3}
+  emojiPrato: {fileID: -85559329, guid: 030cfbb68e364e94584693c6a252eace, type: 3}
   paginaReceita: {fileID: -1197039282, guid: d697d33601acb3b42bedcb77b1d13fc9, type: 3}
   ingredientesNecessarios:
   - itemData: {fileID: 11400000, guid: d4767358cdcb2e548a2e423ae8d9b6b9, type: 2}

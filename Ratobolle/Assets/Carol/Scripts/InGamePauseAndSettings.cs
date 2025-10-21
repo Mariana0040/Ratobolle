@@ -18,6 +18,12 @@ public class InGamePauseAndSettings : MonoBehaviour
 
     // Não precisa de referência ao AudioManager, pois ele é um Singleton (Instance)
 
+    void Awake()
+    {
+        Time.timeScale = 1f;
+        isGamePaused = false;
+    }
+
     void Start()
     {
         if (pauseMenuPanel != null) pauseMenuPanel.SetActive(false);
@@ -27,7 +33,7 @@ public class InGamePauseAndSettings : MonoBehaviour
         Cursor.visible = false;
 
         // Puxa as configurações salvas para os sliders
-        LoadSettings();
+        //LoadSettings();
     }
 
     void Update()

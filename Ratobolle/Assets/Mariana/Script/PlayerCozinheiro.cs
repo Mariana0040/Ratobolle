@@ -1,12 +1,9 @@
-// Salve como PlayerCozinheiro.cs
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 
 public class PlayerCozinheiro : MonoBehaviour
 {
-    public static PlayerCozinheiro Instance { get; private set; }
-
     [Header("Configurações de Interação")]
     public float raioDeInteracao = 2.0f;
     public KeyCode teclaDeEntrega = KeyCode.E;
@@ -14,82 +11,58 @@ public class PlayerCozinheiro : MonoBehaviour
 
     [Header("Lógica de Cozinha")]
     public Transform pontoPratoSegurado;
+    public BookAnimator bookAnimator; // Arraste aqui o objeto com o script BookAnimator
 
-    // --- CONTROLE INTERNO ---
     private CollectibleItemData pratoAtual;
     private GameObject modeloPratoAtual;
-
-    // Referência para o nosso novo Animator
-    public BookAnimator bookAnimator;
-
-    // Lógica do livro de receitas movida para cá
     private List<ReceitaSO> receitasDisponiveis;
     private int paginaAtual = 0;
     private bool livroAberto = false;
-
-    void Awake()
-    {
-        if (Instance != null && Instance != this) { Destroy(gameObject); } else { Instance = this; }
-    }
+    private SimplifiedPlayerInventory inventory;
 
     void Start()
     {
-
+        inventory = Object.FindFirstObjectByType<SimplifiedPlayerInventory>();
     }
 
     void Update()
     {
-        // 1. Lógica para ABRIR/FECHAR o livro
-        if (Input.GetKeyDown(teclaDoLivro))
+        if (Input.GetKeyDown(KeyCode.R))
         {
             TentarAbrirFecharLivro();
         }
 
-        // 2. Se o livro está aberto, permite NAVEGAÇÃO e CRIAÇÃO
         if (livroAberto)
         {
-            if (Input.GetKeyDown(KeyCode.X)) MudarPagina(-1);
-            if (Input.GetKeyDown(KeyCode.C)) MudarPagina(1);
+            if (Input.GetKeyDown(KeyCode.X)) MudarPagina(-1); // Esquerda
+            if (Input.GetKeyDown(KeyCode.C)) MudarPagina(1);  // Direita
             if (Input.GetKeyDown(KeyCode.Z)) CriarReceitaAtual();
         }
 
-        // 3. Lógica para ENTREGAR a comida
         if (Input.GetKeyDown(teclaDeEntrega))
         {
             TentarEntregarComida();
         }
     }
 
-    // --- MÉTODOS DE CONTROLE DO LIVRO ---
-
     void TentarAbrirFecharLivro()
     {
-        
         if (bookAnimator == null) return;
+        livroAberto = !livroAberto;
 
         if (livroAberto)
         {
-            FecharLivro();
+            AbrirLivro();
         }
         else
         {
-            Collider[] colliders = Physics.OverlapSphere(transform.position, raioDeInteracao);
-            foreach (var col in colliders)
-            {
-                if (col.gameObject.CompareTag("BancadaDaCozinha"))
-                {
-                    AbrirLivro();
-                    return;
-                }
-            }
+            FecharLivro();
         }
     }
 
     void AbrirLivro()
     {
-        livroAberto = true;
         bookAnimator.OpenBook();
-
         receitasDisponiveis = GerenciadorRestaurante.Instance.ObterReceitasDisponiveis();
         paginaAtual = 0;
         AtualizarPaginaVisual();
@@ -97,7 +70,6 @@ public class PlayerCozinheiro : MonoBehaviour
 
     void FecharLivro()
     {
-        livroAberto = false;
         bookAnimator.CloseBook();
     }
 
@@ -106,13 +78,13 @@ public class PlayerCozinheiro : MonoBehaviour
         int proximaPagina = paginaAtual + direcao;
         if (proximaPagina < 0 || proximaPagina >= receitasDisponiveis.Count) return;
 
-        bookAnimator.AnimatePageTurn(() => {
+        // A MÁGICA: Passamos a lógica de atualização como um "presente" para a animação
+        bookAnimator.TurnPage(direcao, () => {
             paginaAtual = proximaPagina;
             AtualizarPaginaVisual();
         });
     }
 
-    // A FUNÇÃO QUE VOCÊ PRECISAVA
     void AtualizarPaginaVisual()
     {
         if (receitasDisponiveis == null || receitasDisponiveis.Count == 0) return;
@@ -120,16 +92,16 @@ public class PlayerCozinheiro : MonoBehaviour
         ReceitaSO receitaAtual = receitasDisponiveis[paginaAtual];
         bool temIngredientes = VerificarIngredientes(receitaAtual);
 
-        // Manda o BookAnimator atualizar sua aparência
-        // IMPORTANTE: Assumindo que a imagem da sua página está no campo 'emojiPrato' da sua ReceitaSO
+        // O PlayerCozinheiro apenas MANDA o BookAnimator se atualizar.
         bookAnimator.UpdatePageContent(receitaAtual.paginaReceita, temIngredientes);
     }
 
     bool VerificarIngredientes(ReceitaSO receita)
     {
+        if (inventory == null) return false;
         foreach (var ingrediente in receita.ingredientesNecessarios)
         {
-            if (SimplifiedPlayerInventory.Instance.GetItemCount(ingrediente.itemData.itemName) < ingrediente.quantity)
+            if (inventory.GetItemCount(ingrediente.itemData.itemName) < ingrediente.quantity)
             {
                 return false;
             }
@@ -142,13 +114,13 @@ public class PlayerCozinheiro : MonoBehaviour
         ReceitaSO receita = receitasDisponiveis[paginaAtual];
         if (!VerificarIngredientes(receita))
         {
-            Debug.Log("Faltam ingredientes para esta receita!");
+            Debug.Log("Faltam ingredientes!");
             return;
         }
 
         foreach (var ingrediente in receita.ingredientesNecessarios)
         {
-            SimplifiedPlayerInventory.Instance.RemoveItem(ingrediente.itemData.itemName, ingrediente.quantity);
+            inventory.RemoveItem(ingrediente.itemData.itemName, ingrediente.quantity);
         }
 
         SegurarPrato(receita.pratoFinal);

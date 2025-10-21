@@ -24,8 +24,22 @@ public class PauseMenuManager : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (isGamePaused)
+
+            // Garante que o GameView esteja focado no editor antes de pausar
+     #if UNITY_EDITOR
+            if (UnityEditor.EditorWindow.focusedWindow != null && UnityEditor.EditorWindow.focusedWindow.titleContent.text == "Game")
             {
+                // Opcional: Para focar o GameView programaticamente, mas nem sempre é garantido funcionar perfeitamente
+                // UnityEditor.EditorWindow gameView = UnityEditor.EditorWindow.GetWindow(typeof(UnityEditor.EditorWindow).Assembly.GetType("UnityEditor.GameView"));
+                // if (gameView != null) gameView.Focus();
+            }
+            else
+            {
+                Debug.LogWarning("O painel 'Game' não está focado. Certifique-se de clicar nele antes de apertar ESC para evitar comportamentos inesperados no editor.");
+            }
+    #endif
+            if (isGamePaused)
+            {   
                 ResumeGame();
             }
             else
@@ -56,7 +70,7 @@ public class PauseMenuManager : MonoBehaviour
 
         if (isMenuSceneLoaded)
         {
-            SceneManager.UnloadSceneAsync(mainMenuSceneName);
+            //SceneManager.UnloadSceneAsync(mainMenuSceneName);
             // SceneManager.UnloadSceneAsync(mainMenuSceneIndex); // se usar índice
             isMenuSceneLoaded = false;
         }
@@ -68,6 +82,10 @@ public class PauseMenuManager : MonoBehaviour
     {
         Debug.Log("Jogo Pausado! Carregando Configurações do Menu Principal...");
         isGamePaused = true;
+        // --- ADICIONE AS LINHAS AQUI ---
+        Debug.Log("FUI EU! O CULPADO ESTÁ NO OBJETO: " + gameObject.name, this.gameObject);
+        Debug.Break();
+        // -----------------------------
         Time.timeScale = 0f;
         GamePauseState.IsLoadedForSettings = true; // AVISA o menu principal
 
@@ -75,7 +93,7 @@ public class PauseMenuManager : MonoBehaviour
 
         if (!IsSceneLoaded(mainMenuSceneName)) // Verifica se a cena já não está carregada
         {
-            SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Additive);
+            //SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Additive);
             // SceneManager.LoadScene(mainMenuSceneIndex, LoadSceneMode.Additive); // se usar índice
             isMenuSceneLoaded = true;
         }
