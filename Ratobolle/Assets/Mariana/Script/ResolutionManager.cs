@@ -39,7 +39,7 @@ public class ResolutionManager : MonoBehaviour
 
     public void ConfigureFullscreenToggle()
     {
-        fullscreenToggle.isOn = Screen.fullScreen; // Sincroniza com o estado atual
+        //fullscreenToggle.isOn = Screen.fullScreen; // Sincroniza com o estado atual
     }
 
     // Chamado quando o dropdown muda

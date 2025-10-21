@@ -151,6 +151,10 @@ public class ClienteRatoAI : MonoBehaviour
 
     void AtualizarAnimacao()
     {
+        if (agente == null || !agente.isOnNavMesh)
+        {
+            return; // Sai da função imediatamente
+        }
         bool estaAndando = !agente.isStopped && agente.velocity.magnitude > 0.1f;
         animator.SetBool("andando", estaAndando);
     }

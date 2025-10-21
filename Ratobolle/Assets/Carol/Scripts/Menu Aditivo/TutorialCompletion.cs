@@ -13,9 +13,9 @@ public class TutorialCompletion : MonoBehaviour
         PlayerPrefs.Save();
 
         // 2. Descarrega a cena do tutorial
-        SceneManager.UnloadSceneAsync("SuaCenaDeTutorial"); // SUBSTITUA O NOME
+        SceneManager.UnloadSceneAsync("CenaM&C"); // SUBSTITUA O NOME
 
         // 3. Recarrega a cena do menu para que ela atualize o estado do botão "Iniciar"
-        SceneManager.LoadScene("SuaCenaDeMenu"); // SUBSTITUA O NOME
+        SceneManager.LoadScene("Menu"); // SUBSTITUA O NOME
     }
 }

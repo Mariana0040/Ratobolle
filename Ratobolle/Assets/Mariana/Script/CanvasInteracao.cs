@@ -29,6 +29,13 @@ public class CanvasInteracao : MonoBehaviour
 
     public void MostrarPedido(List<ReceitaSO> pedido)
     {
+        // --- ADICIONE ESTA VERIFICAÇÃO DE SEGURANÇA ---
+        // Se este objeto de canvas foi destruído, não continue.
+        if (this == null || gameObject == null)
+        {
+            return; // Sai da função
+        }
+
         // Limpa pedidos antigos
         foreach (Transform child in containerDePedidos)
         {

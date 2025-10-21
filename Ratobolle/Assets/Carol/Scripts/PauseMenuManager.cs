@@ -82,6 +82,10 @@ public class PauseMenuManager : MonoBehaviour
     {
         Debug.Log("Jogo Pausado! Carregando Configurações do Menu Principal...");
         isGamePaused = true;
+        // --- ADICIONE AS LINHAS AQUI ---
+        Debug.Log("FUI EU! O CULPADO ESTÁ NO OBJETO: " + gameObject.name, this.gameObject);
+        Debug.Break();
+        // -----------------------------
         Time.timeScale = 0f;
         GamePauseState.IsLoadedForSettings = true; // AVISA o menu principal
 

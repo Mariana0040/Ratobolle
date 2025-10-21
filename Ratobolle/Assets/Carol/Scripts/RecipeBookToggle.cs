@@ -93,9 +93,9 @@ public class RecipeBookToggle : MonoBehaviour
             isRecipeBookOpen = false;
             recipeBookPanel.SetActive(false);
             Debug.Log("Livro de Receitas Fechado (pelo botão/função).");
-            // Time.timeScale = 1f;
-            // Cursor.lockState = CursorLockMode.Locked;
-            // Cursor.visible = false;
+            //Time.timeScale = 1f;
+            //Cursor.lockState = CursorLockMode.Locked;
+            //Cursor.visible = false;
 
             // 6. ADICIONE ESTE BLOCO: Garante que o texto se esconda aqui também
             if (exitBookPrompt != null)
