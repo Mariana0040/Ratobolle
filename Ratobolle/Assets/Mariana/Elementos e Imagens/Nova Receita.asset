@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: be58fd7e59a85864fa3b7900deba8ba2, type: 3}
+  m_Name: Nova Receita
+  m_EditorClassIdentifier: 
+  nomeReceita: 
+  emojiPrato: {fileID: 0}
+  paginaReceita: {fileID: 0}
+  ingredientesNecessarios:
+  - itemData: {fileID: 0}
+    quantity: 0
+  pratoFinal: {fileID: 0}
