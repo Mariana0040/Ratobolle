@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: Pizza
   icon: {fileID: 2118049404, guid: 0956a2a190929b74e93be7eae8c62eda, type: 3}
+  modelPrefab: {fileID: 5334017642741368799, guid: abe177bd8d2836844855d6a035c7aa23, type: 3}

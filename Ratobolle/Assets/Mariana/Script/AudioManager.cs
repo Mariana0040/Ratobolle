@@ -76,4 +76,12 @@ public class AudioManager : MonoBehaviour
         musicSource.clip = clip;
         musicSource.Play();
     }
+
+    // --- NOVA FUNÇÃO PARA SONS 3D ---
+    // Toca um efeito sonoro em uma posição específica no mundo
+    public void PlaySFXAtLocation(AudioClip clip, Vector3 position)
+    {
+        // Cria uma fonte de áudio temporária na posição, toca o som e a destrói.
+        AudioSource.PlayClipAtPoint(clip, position, CurrentSFXVolume);
+    }
 }
