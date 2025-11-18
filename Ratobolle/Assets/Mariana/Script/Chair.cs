@@ -3,6 +3,7 @@ using UnityEngine;
 public class Chair : MonoBehaviour
 {
     public bool estaOcupada = false;
+    public Transform pontoDeSentar; // <-- ADICIONE ESTA LINHA
 
     void Start()
     {
@@ -14,6 +15,12 @@ public class Chair : MonoBehaviour
         else
         {
             Debug.LogError("GerenciadorRestaurante não encontrado na cena!", this);
+        }
+
+        // Validação para garantir que o ponto de sentar foi atribuído
+        if (pontoDeSentar == null)
+        {
+            Debug.LogWarning("A cadeira " + gameObject.name + " não tem um 'PontoDeSentar' configurado!", this);
         }
     }
 

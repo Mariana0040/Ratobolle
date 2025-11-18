@@ -117,7 +117,7 @@ public class ClienteRatoAI : MonoBehaviour
         switch (estadoAtual)
         {
             case EstadoCliente.IndoParaCadeira:
-                if (!agente.pathPending && agente.remainingDistance < 0.2f)
+                if (!agente.pathPending && agente.remainingDistance < 0.3f)
                 {
                     Sentar();
                 }
@@ -125,6 +125,8 @@ public class ClienteRatoAI : MonoBehaviour
             case EstadoCliente.IndoEmbora:
                 if (!agente.pathPending && agente.remainingDistance < 0.5f)
                 {
+                    // Certifique-se de que o cliente é destruído apenas quando chega ao ponto de saída
+                    //GerenciadorRestaurante.Instance.DeregistrarCliente(this);
                     Destroy(gameObject);
                 }
                 break;
@@ -137,12 +139,21 @@ public class ClienteRatoAI : MonoBehaviour
         estadoAtual = EstadoCliente.IndoParaCadeira;
         cadeiraAlvo = GerenciadorRestaurante.Instance.SolicitarCadeiraLivre();
 
-        if (cadeiraAlvo != null)
+        if (cadeiraAlvo != null && cadeiraAlvo.pontoDeSentar != null) // ALTERADO: Adicionado verificação
         {
-            agente.SetDestination(cadeiraAlvo.transform.position);
+            // O agente agora vai para o ponto exato onde o rato deve sentar.
+            agente.SetDestination(cadeiraAlvo.pontoDeSentar.position);
         }
         else
         {
+            if (cadeiraAlvo == null)
+            {
+                Debug.Log("Não há cadeiras livres, indo embora.");
+            }
+            else
+            {
+                Debug.LogError("A cadeira alvo não tem um 'pontoDeSentar' configurado!");
+            }
             IrEmbora();
         }
     }
@@ -151,8 +162,11 @@ public class ClienteRatoAI : MonoBehaviour
     {
         estadoAtual = EstadoCliente.EsperandoPedido;
         agente.isStopped = true;
-        transform.position = cadeiraAlvo.transform.position;
-        transform.rotation = cadeiraAlvo.transform.rotation;
+
+        // ALTERADO: Teleporta o rato para a posição e rotação exatas do PontoDeSentar.
+        transform.position = cadeiraAlvo.pontoDeSentar.position;
+        transform.rotation = cadeiraAlvo.pontoDeSentar.rotation;
+
         Debug.Log("Cliente Rato sentado e esperando o pedido.");
         FazerPedido();
     }
