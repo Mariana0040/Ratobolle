@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: MussarelaData
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: Mussarela
-  icon: {fileID: 2132502636, guid: e90967c9f3414c14f95aa8dd2c9c792e, type: 3}
+  icon: {fileID: 1639279205, guid: ac51143580ac2e1418242290ca34f1cc, type: 3}
   modelPrefab: {fileID: 6136271962203018422, guid: f411a4254c8be254aacd035ba1d47590, type: 3}

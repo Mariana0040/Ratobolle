@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: BifeData
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: Bife
-  icon: {fileID: -1491640686, guid: bc5cb97e0bb22bd418261e532aa25be1, type: 3}
-  modelPrefab: {fileID: 0}
+  icon: {fileID: -808144705, guid: 4d405f3ae922bd544a142d3be524f80e, type: 3}
+  modelPrefab: {fileID: 8244231358989832095, guid: 8d806fe92a0305647af91fcf53b1838b, type: 3}

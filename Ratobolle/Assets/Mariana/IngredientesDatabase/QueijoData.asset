@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: QueijoData
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: Queijo
-  icon: {fileID: 1639279205, guid: d3b0e32b2dc082c45b55e272773b0a27, type: 3}
+  icon: {fileID: -345191802, guid: 030cfbb68e364e94584693c6a252eace, type: 3}
   modelPrefab: {fileID: 6901739106263148084, guid: 17ced92ec3f01054294d4cd9fb2a0381, type: 3}

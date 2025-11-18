@@ -14,3 +14,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: Pepperoni
   icon: {fileID: 21300000, guid: 8fd6b167aab0c5c4f925e86942f43b91, type: 3}
+  modelPrefab: {fileID: 5998140666856162029, guid: 4bdaf92ddf42e9f4f92b62804084fd50, type: 3}

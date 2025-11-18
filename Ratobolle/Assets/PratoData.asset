@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 0}
   m_Name: PratoData
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
-  itemName: Pizza
-  icon: {fileID: -85559329, guid: 030cfbb68e364e94584693c6a252eace, type: 3}
-  modelPrefab: {fileID: 5334017642741368799, guid: abe177bd8d2836844855d6a035c7aa23, type: 3}
+  itemName: Novo Item
+  icon: {fileID: 0}
+  modelPrefab: {fileID: 0}

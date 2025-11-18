@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: LeiteData
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: Leite
-  icon: {fileID: 1694735322, guid: 6d8a660e0d331de499c3d9d5dc89b78f, type: 3}
+  icon: {fileID: 1694735322, guid: 5abfcef0dae48914da63461603977dca, type: 3}
+  modelPrefab: {fileID: 2026206386767431679, guid: 72fd28a53b7186048be2d14605ba8bec, type: 3}

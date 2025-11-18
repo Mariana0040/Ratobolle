@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: MolhoDeTomateData
   m_EditorClassIdentifier: Assembly-CSharp::CollectibleItemData
   itemName: MolhoDeTomate
-  icon: {fileID: 513779381, guid: fcca873e96118714f97de433996c8863, type: 3}
+  icon: {fileID: 513779381, guid: 4025f969a027d854b8be77bdf5b88e81, type: 3}
   modelPrefab: {fileID: 2640097162711396663, guid: 91a415042e345f1458a2dfbeda9dbf83, type: 3}
