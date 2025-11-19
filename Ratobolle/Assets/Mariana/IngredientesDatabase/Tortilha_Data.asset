@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a864a494303c941865bed992b75abb, type: 3}
+  m_Name: Tortilha_Data
+  m_EditorClassIdentifier: 
+  itemName: Tortilha
+  icon: {fileID: 289591768, guid: 55f7f2c25c66b2e4c927363bb54250b6, type: 3}
+  modelPrefab: {fileID: 5584569873608518994, guid: 25659de7e68687644bba5abe3ad4f6f6, type: 3}

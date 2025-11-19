@@ -32,7 +32,7 @@ public class ClienteRatoAI : MonoBehaviour
     }
 
     // ALTERADO: Adicionamos a lógica para instanciar o prato na mesa.
-    public bool TentarEntregar(CollectibleItemData prato)
+    public bool TentarEntregar(CollectibleItemData_V2 prato)
     {
         ReceitaSO receitaCorrespondente = pedidoAtual.FirstOrDefault(r => r.pratoFinal == prato);
 

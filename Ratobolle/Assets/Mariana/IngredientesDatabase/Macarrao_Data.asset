@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a864a494303c941865bed992b75abb, type: 3}
+  m_Name: Macarrao_Data
+  m_EditorClassIdentifier: 
+  itemName: Macarrao
+  icon: {fileID: 1646814461, guid: ad3dd71721454464b893c3abf0210926, type: 3}
+  modelPrefab: {fileID: 7665040929876467427, guid: 9c8a9ebee2bebab44ae947b51447e096, type: 3}

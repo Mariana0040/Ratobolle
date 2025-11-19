@@ -1,0 +1,202 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &5148135354161925147
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8856916482769721425, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.18481807
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.18481807
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.18481807
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -26.13521
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.33
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -82.69326
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8455728280606582528, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -7395704305543789238, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -6792889981931915972, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -4960584510277547667, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -4058879426038799192, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -466329591000292508, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 293885554017767701, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 641637574385785765, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Name
+      value: ArrozMexicano
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559817854460706613, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4103881766339141800, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 5194334309628646677, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7045030354117346258, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 7975042476016782316, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 9017328541939089309, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      propertyPath: m_Layer
+      value: 8
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects:
+    - {fileID: -8700617353114198275, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+    - {fileID: 65702495048144492, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6639423213617067732}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 300540114365855272}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 480131154849780906}
+  m_SourcePrefab: {fileID: 100100000, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+--- !u!1 &5454052687563632970 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 931a963a29f54144e8cff7ca788b29fa, type: 3}
+  m_PrefabInstance: {fileID: 5148135354161925147}
+  m_PrefabAsset: {fileID: 0}
+--- !u!65 &6639423213617067732
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5454052687563632970}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6.2188654, y: 3.5197637, z: 6.119059}
+  m_Center: {x: -0.02637312, y: -0.074440464, z: -0.029742807}
+--- !u!114 &300540114365855272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5454052687563632970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 063652d990c388a47b991b876833f80e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ingredientName: Arroz
+  quantity: 1
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}
+--- !u!114 &480131154849780906
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5454052687563632970}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c5ae167680ca44e4baa718d294c9471f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  itemName: Arroz
+  quantity: 1
+  highlightColor: {r: 0, g: 1, b: 0, a: 1}

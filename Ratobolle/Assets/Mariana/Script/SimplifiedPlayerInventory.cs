@@ -11,9 +11,9 @@ using Mono.Cecil.Cil;
 [System.Serializable]
 public class InventoryItem
 {
-    public CollectibleItemData itemData;
+    public CollectibleItemData_V2 itemData;
     public int quantity;
-    public InventoryItem(CollectibleItemData data, int amount) { itemData = data; quantity = amount; }
+    public InventoryItem(CollectibleItemData_V2 data, int amount) { itemData = data; quantity = amount; }
 }
 [System.Serializable]
 public class UI_InventorySlot
@@ -25,7 +25,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
 {
     public static SimplifiedPlayerInventory Instance { get; private set; }
     [Header("Banco de Dados de Itens")]
-    public List<CollectibleItemData> itemDatabase;
+    public List<CollectibleItemData_V2> itemDatabase;
 
     [Header("Referências da UI (Encontradas Automaticamente)")]
     public List<UI_InventorySlot> uiSlots;
@@ -117,7 +117,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
     #region Lógica Principal do Inventário
     public void AddItem(string itemName, int quantity = 1)
     {
-        CollectibleItemData data = GetItemData(itemName);
+        CollectibleItemData_V2 data = GetItemData(itemName);
         if (data == null) return;
         InventoryItem existingItem = playerItems.FirstOrDefault(item => item.itemData.itemName == itemName);
         if (existingItem != null)
@@ -190,7 +190,7 @@ public class SimplifiedPlayerInventory : MonoBehaviour
         }
     }
 
-    private CollectibleItemData GetItemData(string itemName)
+    private CollectibleItemData_V2 GetItemData(string itemName)
     {
         return itemDatabase.FirstOrDefault(item => item.itemName == itemName);
     }

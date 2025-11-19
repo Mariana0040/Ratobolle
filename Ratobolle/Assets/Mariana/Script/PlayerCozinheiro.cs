@@ -14,7 +14,7 @@ public class PlayerCozinheiro : MonoBehaviour
     public GameObject clochePrefab; // NOVO: Arraste aqui o Prefab do seu cloche
     public BookAnimator bookAnimator;
 
-    private CollectibleItemData pratoAtual;
+    private CollectibleItemData_V2 pratoAtual;
     private GameObject modeloSeguradoAtual; // Renomeado para maior clareza
     private List<ReceitaSO> receitasDisponiveis;
     private int paginaAtual = 0;
@@ -47,7 +47,7 @@ public class PlayerCozinheiro : MonoBehaviour
     }
 
     // ALTERADO: Agora instancia o cloche, mas guarda a informação do prato.
-    public void SegurarPrato(CollectibleItemData pratoData)
+    public void SegurarPrato(CollectibleItemData_V2 pratoData)
     {
         LimparPratoSegurado();
         pratoAtual = pratoData;
