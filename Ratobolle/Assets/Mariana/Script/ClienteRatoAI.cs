@@ -1,9 +1,9 @@
 using UnityEngine;
 using UnityEngine.AI;
 using System.Collections;
-using Mono.Cecil.Cil;
 using System.Collections.Generic;
 using System.Linq;
+
 [RequireComponent(typeof(NavMeshAgent))]
 [RequireComponent(typeof(Animator))]
 public class ClienteRatoAI : MonoBehaviour
@@ -13,11 +13,15 @@ public class ClienteRatoAI : MonoBehaviour
     private NavMeshAgent agente;
     private Animator animator;
 
-    // MODIFICADO: A referência agora é para o componente 'Chair'
     public Chair cadeiraAlvo;
-    public CanvasInteracao canvasInteracao; // Arraste o canvas do balão aqui
+    public CanvasInteracao canvasInteracao;
+
+    [Header("Configuração da Entrega")]
+    public Transform pontoPratoNaMesa; // NOVO: Arraste o objeto que marca onde o prato ficará na mesa
 
     private List<ReceitaSO> pedidoAtual = new List<ReceitaSO>();
+    private List<GameObject> pratosInstanciados = new List<GameObject>(); // NOVO: Guarda os pratos na mesa para limpá-los depois
+
     void Start()
     {
         agente = GetComponent<NavMeshAgent>();
@@ -27,12 +31,93 @@ public class ClienteRatoAI : MonoBehaviour
         EncontrarCadeiraLivre();
     }
 
+    // ALTERADO: Adicionamos a lógica para instanciar o prato na mesa.
+    public bool TentarEntregar(CollectibleItemData_V2 prato)
+    {
+        ReceitaSO receitaCorrespondente = pedidoAtual.FirstOrDefault(r => r.pratoFinal == prato);
+
+        if (receitaCorrespondente != null)
+        {
+            Debug.Log("Pedido correto entregue: " + prato.itemName);
+
+            // NOVO: Faz o prato aparecer na mesa.
+            if (pontoPratoNaMesa != null && prato.modelPrefab != null)
+            {
+                // Instancia o prato e o adiciona à lista para ser destruído depois.
+                GameObject pratoNaMesa = Instantiate(prato.modelPrefab, pontoPratoNaMesa.position, pontoPratoNaMesa.rotation);
+                pratosInstanciados.Add(pratoNaMesa);
+                pratoNaMesa.transform.parent = pontoPratoNaMesa.transform;
+            }
+
+            pedidoAtual.Remove(receitaCorrespondente);
+            canvasInteracao.MostrarPedido(pedidoAtual);
+
+            // Se este foi o último item do pedido, começa a comer.
+            if (pedidoAtual.Count == 0)
+            {
+                estadoAtual = EstadoCliente.Comendo;
+                StartCoroutine(ComerComida(5f)); // Cliente come e vai embora feliz
+            }
+            return true; // Entrega bem-sucedida
+        }
+
+        Debug.Log("Pedido errado!");
+        return false; // Entrega falhou
+    }
+
+    // ALTERADO: Adicionamos a limpeza dos pratos que estão na mesa.
+    public void IrEmbora()
+    {
+        // NOVO: Destrói os pratos que foram instanciados na mesa.
+        foreach (var prato in pratosInstanciados)
+        {
+            Destroy(prato);
+        }
+        pratosInstanciados.Clear();
+
+        canvasInteracao.EsconderBalao();
+        estadoAtual = EstadoCliente.IndoEmbora;
+        agente.isStopped = false;
+
+        if (cadeiraAlvo != null)
+        {
+            cadeiraAlvo.Liberar();
+            cadeiraAlvo = null;
+        }
+
+        agente.SetDestination(GerenciadorRestaurante.Instance.pontoDeSaida.position);
+    }
+
+    private IEnumerator ComerComida(float duracao)
+    {
+        // A animação de comer agora é controlada pelo estado.
+        // O estado já foi mudado para Comendo em TentarEntregar
+        Debug.Log("Cliente Rato começou a comer.");
+        yield return new WaitForSeconds(duracao);
+        Debug.Log("Cliente Rato terminou de comer e vai embora satisfeito.");
+        IrEmbora();
+    }
+
+    // ALTERADO: A animação de comer agora é baseada no estado.
+    void AtualizarAnimacao()
+    {
+        if (agente == null || !agente.isOnNavMesh) return;
+
+        bool estaAndando = !agente.isStopped && agente.velocity.magnitude > 0.1f;
+        animator.SetBool("andando", estaAndando);
+
+        // Define a animação de comer baseada no estado atual
+        animator.SetBool("Comendo", estadoAtual == EstadoCliente.Comendo);
+    }
+
+    // --- O RESTO DO SEU CÓDIGO PERMANECE IGUAL ---
+    #region Funções Originais
     void Update()
     {
         switch (estadoAtual)
         {
             case EstadoCliente.IndoParaCadeira:
-                if (!agente.pathPending && agente.remainingDistance < 0.2f)
+                if (!agente.pathPending && agente.remainingDistance < 0.3f)
                 {
                     Sentar();
                 }
@@ -40,6 +125,8 @@ public class ClienteRatoAI : MonoBehaviour
             case EstadoCliente.IndoEmbora:
                 if (!agente.pathPending && agente.remainingDistance < 0.5f)
                 {
+                    // Certifique-se de que o cliente é destruído apenas quando chega ao ponto de saída
+                    //GerenciadorRestaurante.Instance.DeregistrarCliente(this);
                     Destroy(gameObject);
                 }
                 break;
@@ -52,14 +139,21 @@ public class ClienteRatoAI : MonoBehaviour
         estadoAtual = EstadoCliente.IndoParaCadeira;
         cadeiraAlvo = GerenciadorRestaurante.Instance.SolicitarCadeiraLivre();
 
-        if (cadeiraAlvo != null)
+        if (cadeiraAlvo != null && cadeiraAlvo.pontoDeSentar != null) // ALTERADO: Adicionado verificação
         {
-            // A linha "cadeiraAlvo.Ocupar()" foi REMOVIDA daqui, pois o Gerente já faz isso.
-            agente.SetDestination(cadeiraAlvo.transform.position);
+            // O agente agora vai para o ponto exato onde o rato deve sentar.
+            agente.SetDestination(cadeiraAlvo.pontoDeSentar.position);
         }
         else
         {
-            // Se não há cadeiras, vai embora
+            if (cadeiraAlvo == null)
+            {
+                Debug.Log("Não há cadeiras livres, indo embora.");
+            }
+            else
+            {
+                Debug.LogError("A cadeira alvo não tem um 'pontoDeSentar' configurado!");
+            }
             IrEmbora();
         }
     }
@@ -68,19 +162,19 @@ public class ClienteRatoAI : MonoBehaviour
     {
         estadoAtual = EstadoCliente.EsperandoPedido;
         agente.isStopped = true;
-        // MODIFICADO: Usa a transform do componente 'Chair'
-        transform.position = cadeiraAlvo.transform.position;
-        transform.rotation = cadeiraAlvo.transform.rotation;
+
+        // ALTERADO: Teleporta o rato para a posição e rotação exatas do PontoDeSentar.
+        transform.position = cadeiraAlvo.pontoDeSentar.position;
+        transform.rotation = cadeiraAlvo.pontoDeSentar.rotation;
+
         Debug.Log("Cliente Rato sentado e esperando o pedido.");
-        FazerPedido(); // << NOVO
+        FazerPedido();
     }
 
     void FazerPedido()
     {
         List<ReceitaSO> receitasDisponiveis = GerenciadorRestaurante.Instance.ObterReceitasDisponiveis();
         int nivelRestaurante = GerenciadorRestaurante.Instance.nivelAtualRestaurante;
-
-        // Nível 1 pede 1 comida, Nível 2 pede 2, etc. (limitado pelas receitas disponíveis)
         int quantidadeDePedidos = Mathf.Min(nivelRestaurante, receitasDisponiveis.Count);
 
         for (int i = 0; i < quantidadeDePedidos; i++)
@@ -90,72 +184,5 @@ public class ClienteRatoAI : MonoBehaviour
 
         canvasInteracao.MostrarPedido(pedidoAtual);
     }
-
-    // Chamado pelo PlayerCozinheiro
-    public bool TentarEntregar(CollectibleItemData prato)
-    {
-        ReceitaSO receitaCorrespondente = pedidoAtual.FirstOrDefault(r => r.pratoFinal == prato);
-
-        if (receitaCorrespondente != null)
-        {
-            Debug.Log("Pedido correto entregue!");
-            pedidoAtual.Remove(receitaCorrespondente);
-            canvasInteracao.MostrarPedido(pedidoAtual); // Atualiza o balão
-
-            if (pedidoAtual.Count == 0)
-            {
-                StartCoroutine(ComerComida(5f)); // Cliente come e vai embora feliz
-            }
-            return true;
-        }
-
-        Debug.Log("Pedido errado!");
-        return false;
-    }
-
-    public void IrEmbora()
-    {
-        canvasInteracao.EsconderBalao();
-        estadoAtual = EstadoCliente.IndoEmbora;
-        agente.isStopped = false;
-
-        // MODIFICADO: Libera o objeto 'Chair' que estava usando
-        if (cadeiraAlvo != null)
-        {
-            cadeiraAlvo.Liberar();
-            cadeiraAlvo = null;
-        }
-
-        agente.SetDestination(GerenciadorRestaurante.Instance.pontoDeSaida.position);
-    }
-
-    // O resto do script não precisou de mudanças
-    public void ReceberComida(float tempoDeComer)
-    {
-        if (estadoAtual == EstadoCliente.EsperandoPedido)
-        {
-            StartCoroutine(ComerComida(tempoDeComer));
-        }
-    }
-
-    private IEnumerator ComerComida(float duracao)
-    {
-        estadoAtual = EstadoCliente.Comendo;
-        animator.SetBool("Comendo",true);
-        Debug.Log("Cliente Rato começou a comer.");
-        yield return new WaitForSeconds(duracao);
-        animator.SetBool("Comendo", false);
-        Debug.Log("Cliente Rato terminou de comer e vai embora satisfeito.");
-        IrEmbora();
-    }
-
-    void AtualizarAnimacao()
-    {
-        if (agente == null || !agente.isOnNavMesh)
-        {
-            return; // Sai da função imediatamente
-        }
-        bool estaAndando = !agente.isStopped && agente.velocity.magnitude > 0.1f;
-        animator.SetBool("andando", estaAndando);
-    }
+    #endregion
 }

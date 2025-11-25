@@ -20,7 +20,7 @@ public class PlayerInventoryManager : MonoBehaviour
     // --- NOVO: O BANCO DE DADOS DE ITENS ---
     [Header("Banco de Dados de Itens")]
     [Tooltip("Arraste TODOS os seus ScriptableObjects de 'CollectibleItemData' para esta lista.")]
-    public List<CollectibleItemData> itemDatabase = new List<CollectibleItemData>();
+    public List<CollectibleItemData_V2> itemDatabase = new List<CollectibleItemData_V2>();
 
     [Header("Gaveta do Inventário (Abre com Tecla I)")]
     public GameObject drawerPanelObject;
@@ -72,7 +72,7 @@ public class PlayerInventoryManager : MonoBehaviour
         if (currentCount > 0)
         {
             // 1. Procura no nosso banco de dados pelo item com o nome correspondente.
-            CollectibleItemData itemData = GetItemData(slotUI.targetIngredientName);
+            CollectibleItemData_V2 itemData = GetItemData(slotUI.targetIngredientName);
 
             if (itemData != null) // Se encontrou os dados do item...
             {
@@ -107,7 +107,7 @@ public class PlayerInventoryManager : MonoBehaviour
     /// <summary>
     /// Encontra e retorna o ScriptableObject de um item a partir do seu nome.
     /// </summary>
-    private CollectibleItemData GetItemData(string itemName)
+    private CollectibleItemData_V2 GetItemData(string itemName)
     {
         // Usa LINQ para encontrar o primeiro item na lista cujo nome corresponde.
         return itemDatabase.FirstOrDefault(item => item.itemName == itemName);

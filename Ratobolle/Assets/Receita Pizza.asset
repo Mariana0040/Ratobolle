@@ -16,12 +16,12 @@ MonoBehaviour:
   emojiPrato: {fileID: -85559329, guid: 030cfbb68e364e94584693c6a252eace, type: 3}
   paginaReceita: {fileID: -1197039282, guid: d697d33601acb3b42bedcb77b1d13fc9, type: 3}
   ingredientesNecessarios:
-  - itemData: {fileID: 11400000, guid: d4767358cdcb2e548a2e423ae8d9b6b9, type: 2}
+  - itemData: {fileID: 11400000, guid: 1ce7fa3b951cd814f985e6d860ecac4c, type: 2}
+    quantity: 1
+  - itemData: {fileID: 11400000, guid: d43cfbf24fbd4c44892d25e6c907e1c0, type: 2}
     quantity: 3
-  - itemData: {fileID: 11400000, guid: 752c20d725135ca429484c94cd542e07, type: 2}
+  - itemData: {fileID: 11400000, guid: 0ac753b774449264f993ca8886ab2d64, type: 2}
     quantity: 1
-  - itemData: {fileID: 11400000, guid: c41f1751f81f5664aab6893527799c4e, type: 2}
+  - itemData: {fileID: 11400000, guid: ce9e16b166932c44188a8f87b6b44c3f, type: 2}
     quantity: 1
-  - itemData: {fileID: 11400000, guid: 888306c9ded8dc841aba809fc4640e67, type: 2}
-    quantity: 1
-  pratoFinal: {fileID: 11400000, guid: 54dc6b90fa5fea944b0e36f92925a5a2, type: 2}
+  pratoFinal: {fileID: 11400000, guid: 4bae45147b15c2940b9b771a3a1c359e, type: 2}

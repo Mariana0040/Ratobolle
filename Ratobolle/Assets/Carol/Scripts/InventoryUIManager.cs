@@ -13,7 +13,7 @@ public class UISlot
     public Image iconImage;
     public TextMeshProUGUI quantityText;
     // Opcional: para saber qual item está neste slot
-    [HideInInspector] public CollectibleItemData currentItemData;
+    [HideInInspector] public CollectibleItemData_V2 currentItemData;
 }
 
 public class InventoryUIManager : MonoBehaviour
@@ -35,9 +35,9 @@ public class InventoryUIManager : MonoBehaviour
     [SerializeField] private Vector2 drawerVisiblePosition; // Posição Y quando visível
 
     // Dados do Inventário: Armazena o ItemData e sua quantidade
-    private Dictionary<CollectibleItemData, int> inventoryItems = new Dictionary<CollectibleItemData, int>();
+    private Dictionary<CollectibleItemData_V2, int> inventoryItems = new Dictionary<CollectibleItemData_V2, int>();
     // Lista para manter a ordem de exibição dos tipos de itens
-    private List<CollectibleItemData> displayedItemOrder = new List<CollectibleItemData>();
+    private List<CollectibleItemData_V2> displayedItemOrder = new List<CollectibleItemData_V2>();
 
     private bool isDrawerOpen = false;
 
@@ -69,7 +69,7 @@ void Start()
         }
     }
 
-    public void AddItem(CollectibleItemData itemData, int quantity)
+    public void AddItem(CollectibleItemData_V2 itemData, int quantity)
     {
         if (itemData == null) return;
 
@@ -89,7 +89,7 @@ void Start()
         UpdateFullInventoryDisplay();
     }
 
-    public void RemoveItem(CollectibleItemData itemData, int quantity)
+    public void RemoveItem(CollectibleItemData_V2 itemData, int quantity)
     {
         if (itemData == null || !inventoryItems.ContainsKey(itemData)) return;
 
@@ -144,7 +144,7 @@ void UpdateFullInventoryDisplay()
         {
             if (i < allSlots.Count) // Garante que não tentemos acessar um slot que não existe
             {
-                CollectibleItemData item = displayedItemOrder[i];
+                CollectibleItemData_V2 item = displayedItemOrder[i];
                 int quantity = inventoryItems[item];
                 UpdateSlotUI(allSlots[i], item, quantity);
             }
@@ -155,7 +155,7 @@ void UpdateFullInventoryDisplay()
 
 
     // Atualiza um único slot da UI
-    void UpdateSlotUI(UISlot slot, CollectibleItemData itemData, int quantity)
+    void UpdateSlotUI(UISlot slot, CollectibleItemData_V2 itemData, int quantity)
     {
         if (slot == null || slot.iconImage == null || slot.quantityText == null) return;
 

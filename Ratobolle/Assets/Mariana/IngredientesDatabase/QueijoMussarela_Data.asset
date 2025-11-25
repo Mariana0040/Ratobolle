@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a864a494303c941865bed992b75abb, type: 3}
+  m_Name: QueijoMussarela_Data
+  m_EditorClassIdentifier: 
+  itemName: Queijo Mussarela
+  icon: {fileID: -1724655506, guid: 55f7f2c25c66b2e4c927363bb54250b6, type: 3}
+  modelPrefab: {fileID: 6670089885963088289, guid: 4513fdfc763eaa14c910bf21a3d4649f, type: 3}

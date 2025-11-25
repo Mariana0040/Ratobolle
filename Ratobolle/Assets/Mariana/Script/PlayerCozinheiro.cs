@@ -11,10 +11,11 @@ public class PlayerCozinheiro : MonoBehaviour
 
     [Header("Lógica de Cozinha")]
     public Transform pontoPratoSegurado;
-    public BookAnimator bookAnimator; // Arraste aqui o objeto com o script BookAnimator
+    public GameObject clochePrefab; // NOVO: Arraste aqui o Prefab do seu cloche
+    public BookAnimator bookAnimator;
 
-    private CollectibleItemData pratoAtual;
-    private GameObject modeloPratoAtual;
+    private CollectibleItemData_V2 pratoAtual;
+    private GameObject modeloSeguradoAtual; // Renomeado para maior clareza
     private List<ReceitaSO> receitasDisponiveis;
     private int paginaAtual = 0;
     private bool livroAberto = false;
@@ -34,30 +35,78 @@ public class PlayerCozinheiro : MonoBehaviour
 
         if (livroAberto)
         {
-            if (Input.GetKeyDown(KeyCode.X)) MudarPagina(-1); // Esquerda
-            if (Input.GetKeyDown(KeyCode.C)) MudarPagina(1);  // Direita
-            if (Input.GetKeyDown(KeyCode.Z)) CriarReceitaAtual();
+            if (Input.GetKeyDown(KeyCode.X)) MudarPagina(-1);
+            if (Input.GetKeyDown(KeyCode.C)) MudarPagina(1);
+            if (Input.GetKeyDown(KeyCode.Z)) CriarReceitaAtual(); // Pressionar Z para pegar o prato (com cloche)
         }
 
         if (Input.GetKeyDown(teclaDeEntrega))
         {
-            TentarEntregarComida();
+            TentarEntregarComida(); // Pressionar E para entregar
         }
     }
 
+    // ALTERADO: Agora instancia o cloche, mas guarda a informação do prato.
+    public void SegurarPrato(CollectibleItemData_V2 pratoData)
+    {
+        LimparPratoSegurado();
+        pratoAtual = pratoData;
+
+        if (clochePrefab == null || pontoPratoSegurado == null)
+        {
+            Debug.LogError("ERRO: O Prefab do Cloche não foi atribuído no Inspector!");
+            Debug.LogError("ERRO: O 'Ponto Prato Segurado' não foi atribuído no Inspector!");
+            return;
+
+
+        }
+        else
+        {
+            Debug.Log("Tudo certo! Criando o cloche...");
+            modeloSeguradoAtual = Instantiate(clochePrefab, pontoPratoSegurado.position, pontoPratoSegurado.rotation, pontoPratoSegurado);
+            // --- FIM DA MODIFICAÇÃO ---
+        }
+    }
+
+    // Nenhuma alteração aqui. A lógica continua a mesma.
+    void TentarEntregarComida()
+    {
+        if (pratoAtual == null) return;
+
+        Collider[] colliders = Physics.OverlapSphere(transform.position, raioDeInteracao);
+        foreach (var col in colliders)
+        {
+            if (col.TryGetComponent(out ClienteRatoAI cliente))
+            {
+                if (cliente.TentarEntregar(pratoAtual))
+                {
+                    GerenciadorRestaurante.Instance.RegistrarEntregaSucedida();
+                    LimparPratoSegurado(); // Limpa o cloche da mão do jogador
+                    return;
+                }
+            }
+        }
+    }
+
+    // Renomeado para ficar mais claro que destrói qualquer modelo que o jogador estiver segurando.
+    void LimparPratoSegurado()
+    {
+        pratoAtual = null;
+        if (modeloSeguradoAtual != null)
+        {
+            Destroy(modeloSeguradoAtual);
+        }
+    }
+
+    // --- O RESTO DO SEU CÓDIGO PERMANECE IGUAL ---
+    #region Funções do Livro e Receitas
     void TentarAbrirFecharLivro()
     {
         if (bookAnimator == null) return;
         livroAberto = !livroAberto;
 
-        if (livroAberto)
-        {
-            AbrirLivro();
-        }
-        else
-        {
-            FecharLivro();
-        }
+        if (livroAberto) AbrirLivro();
+        else FecharLivro();
     }
 
     void AbrirLivro()
@@ -78,7 +127,6 @@ public class PlayerCozinheiro : MonoBehaviour
         int proximaPagina = paginaAtual + direcao;
         if (proximaPagina < 0 || proximaPagina >= receitasDisponiveis.Count) return;
 
-        // A MÁGICA: Passamos a lógica de atualização como um "presente" para a animação
         bookAnimator.TurnPage(direcao, () => {
             paginaAtual = proximaPagina;
             AtualizarPaginaVisual();
@@ -92,7 +140,6 @@ public class PlayerCozinheiro : MonoBehaviour
         ReceitaSO receitaAtual = receitasDisponiveis[paginaAtual];
         bool temIngredientes = VerificarIngredientes(receitaAtual);
 
-        // O PlayerCozinheiro apenas MANDA o BookAnimator se atualizar.
         bookAnimator.UpdatePageContent(receitaAtual.paginaReceita, temIngredientes);
     }
 
@@ -111,6 +158,8 @@ public class PlayerCozinheiro : MonoBehaviour
 
     void CriarReceitaAtual()
     {
+        if (receitasDisponiveis == null || paginaAtual < 0 || paginaAtual >= receitasDisponiveis.Count) return;
+
         ReceitaSO receita = receitasDisponiveis[paginaAtual];
         if (!VerificarIngredientes(receita))
         {
@@ -127,50 +176,10 @@ public class PlayerCozinheiro : MonoBehaviour
         FecharLivro();
     }
 
-    // --- MÉTODOS DE ENTREGA E MANIPULAÇÃO DE PRATOS ---
-
-    void TentarEntregarComida()
-    {
-        if (pratoAtual == null) return;
-
-        Collider[] colliders = Physics.OverlapSphere(transform.position, raioDeInteracao);
-        foreach (var col in colliders)
-        {
-            if (col.TryGetComponent(out ClienteRatoAI cliente))
-            {
-                if (cliente.TentarEntregar(pratoAtual))
-                {
-                    GerenciadorRestaurante.Instance.RegistrarEntregaSucedida();
-                    LimparPratoSegurado();
-                    return;
-                }
-            }
-        }
-    }
-
-    public void SegurarPrato(CollectibleItemData pratoData)
-    {
-        LimparPratoSegurado();
-        pratoAtual = pratoData;
-
-        if (pratoData.modelPrefab != null && pontoPratoSegurado != null)
-        {
-            modeloPratoAtual = Instantiate(pratoData.modelPrefab, pontoPratoSegurado);
-        }
-    }
-
-    void LimparPratoSegurado()
-    {
-        pratoAtual = null;
-        if (modeloPratoAtual != null)
-        {
-            Destroy(modeloPratoAtual);
-        }
-    }
-
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(transform.position, raioDeInteracao);
     }
+    #endregion
 }

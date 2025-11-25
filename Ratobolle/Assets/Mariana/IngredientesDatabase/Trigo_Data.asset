@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 26a864a494303c941865bed992b75abb, type: 3}
+  m_Name: Trigo_Data
+  m_EditorClassIdentifier: 
+  itemName: Trigo
+  icon: {fileID: 219668884, guid: 2ca3ffdbdaebe66479ce5d255fbfe9d6, type: 3}
+  modelPrefab: {fileID: 6252377172703145467, guid: d967baa97032b104fb1c6a56da0431de, type: 3}

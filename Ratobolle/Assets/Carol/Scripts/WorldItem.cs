@@ -2,7 +2,7 @@
 using UnityEngine;
 public class WorldItem : MonoBehaviour
 {
-    public CollectibleItemData itemData; // Arraste o ScriptableObject aqui
+    public CollectibleItemData_V2 itemData; // Arraste o ScriptableObject aqui
     public int quantity = 1;
     // ... (lógica de highlight, se houver)
 }

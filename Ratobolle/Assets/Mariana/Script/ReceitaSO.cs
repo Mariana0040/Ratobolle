@@ -15,5 +15,5 @@ public class ReceitaSO : ScriptableObject
 
     [Header("Resultado Final")]
     [Tooltip("O item que será criado e entregue ao cliente.")]
-    public CollectibleItemData pratoFinal;
+    public CollectibleItemData_V2 pratoFinal;
 }
