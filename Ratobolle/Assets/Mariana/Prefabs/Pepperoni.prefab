@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemName: Pepperoni
-  quantity: 1
+  quantity: 1000
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &8353954735874254094
 MonoBehaviour:
@@ -140,5 +140,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientName: Pepperoni
-  quantity: 1
+  quantity: 1000
   highlightColor: {r: 0, g: 1, b: 0, a: 1}

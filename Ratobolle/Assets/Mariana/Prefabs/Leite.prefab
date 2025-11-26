@@ -125,7 +125,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientName: Leite
-  quantity: 1
+  quantity: 1000
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &3184420115136805573
 MonoBehaviour:
@@ -140,5 +140,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemName: Leite
-  quantity: 1
+  quantity: 1000
   highlightColor: {r: 0, g: 1, b: 0, a: 1}

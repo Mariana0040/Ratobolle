@@ -121,7 +121,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemName: Queijo Mussarela
-  quantity: 1
+  quantity: 1000
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &1036057119790497625
 MonoBehaviour:
@@ -136,5 +136,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ingredientName: Queijo Mussarela
-  quantity: 1
+  quantity: 1000
   highlightColor: {r: 0, g: 1, b: 0, a: 1}
