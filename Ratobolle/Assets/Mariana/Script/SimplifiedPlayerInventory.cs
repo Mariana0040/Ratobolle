@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DG.Tweening;
 using UnityEngine.SceneManagement;
-using Mono.Cecil.Cil;
 // As definições de classe permanecem as mesmas
 [System.Serializable]
 public class InventoryItem
